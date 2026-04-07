@@ -40,10 +40,6 @@ public class Booking implements ICancelable {
         return room.getPrice();
     }
 
-    public void confirmBooking() {
-        bookingStatus = BookingStatus.CONFIRMED;
-    }
-
     @Override
     public void cancel() {
         bookingStatus = BookingStatus.CANCELLED;
@@ -53,4 +49,7 @@ public class Booking implements ICancelable {
         bookingStatus = BookingStatus.COMPLETED;
     }
 
+    public void requestCancellation() {
+        bookingStatus = BookingStatus.CANCELLATION_REQUESTED;
+    }
 }

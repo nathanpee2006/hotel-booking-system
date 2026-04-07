@@ -1,3 +1,10 @@
+# Maven build output
+target/
+
+# Runtime data files
+resources/bookings.csv
+resources/room_reservations.csv
+
 # Compiled class file
 *.class
 

@@ -26,7 +26,7 @@ public class HotelApp {
         int userType = sc.nextInt();
 
         if (userType == 1) {
-            runCustomerMenu(sc, manager, roomRepo);
+            runCustomerMenu(sc, manager, roomRepo, bookingRepo);
         } else if (userType == 2) {
 //            runClerkMenu(sc, manager);
         } else {
@@ -97,10 +97,23 @@ public class HotelApp {
                     break;
 
                 case 2:
+                    System.out.print("Enter your email: ");
+                    sc.nextLine();
+                    String cancelEmail = sc.nextLine().trim();
+
                     System.out.print("Enter booking ID: ");
                     int cancelId = sc.nextInt();
-                    manager.cancelBooking(cancelId);
-                    System.out.println("Booking cancelled");
+
+                    try {
+                        manager.cancelBooking(cancelId, cancelEmail);
+                        System.out.println("Booking cancelled.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    } catch (SecurityException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    } catch (IllegalStateException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
 
                 case 3:
@@ -140,7 +153,7 @@ public class HotelApp {
         }
     }
 
-    private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo) {
+    private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
 
         while (true) {
             System.out.println("\n=== CUSTOMER MENU ===");
@@ -228,10 +241,35 @@ public class HotelApp {
                         Jan cancels Booking of Nathan.
                  */
                 case 2:
+                    System.out.print("Enter your email: ");
+                    sc.nextLine();
+                    String cancelEmail = sc.nextLine().trim();
+
                     System.out.print("Enter booking ID: ");
                     int cancelId = sc.nextInt();
-                    manager.cancelBooking(cancelId);
-                    System.out.println("Booking cancelled.");
+
+                    try {
+                        Booking found = bookingRepo.findById(cancelId);
+
+                        if (found == null) {
+                            System.out.println("Booking not found.");
+                            break;
+                        }
+
+                        if (found.getBookingStatus() == BookingStatus.PENDING) {
+                            manager.cancelBooking(cancelId, cancelEmail);
+                            System.out.println("Booking cancelled successfully.");
+                        } else if (found.getBookingStatus() == BookingStatus.COMPLETED) {
+                            manager.requestCancellation(cancelId, cancelEmail);
+                            System.out.println("Cancellation request submitted. Awaiting clerk approval.");
+                        } else {
+                            System.out.println("Booking cannot be cancelled in its current state: "
+                                    + found.getBookingStatus().getStatus());
+                        }
+
+                    } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
 
                 /*
@@ -242,7 +280,7 @@ public class HotelApp {
                  */
                 case 3:
                     return;
-                    
+
                 case 4:
                     return;
 

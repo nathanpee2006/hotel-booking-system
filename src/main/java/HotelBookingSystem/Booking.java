@@ -52,4 +52,9 @@ public class Booking implements ICancelable {
     public void requestCancellation() {
         bookingStatus = BookingStatus.CANCELLATION_REQUESTED;
     }
+    
+
+    public void setBookingStatus(BookingStatus stat) {
+    	this.bookingStatus = stat.getBookingStatus();
+    }
 }

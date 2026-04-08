@@ -34,123 +34,7 @@ public class HotelApp {
         }
 
         // What is the purpose of this? Can this be moved to runClerkMenu
-        while (true) {
-            System.out.println("=== HOTEL BOOKING SYSTEM ===");
-            System.out.println("1. Book a room");
-            System.out.println("2. Cancel booking");
-            System.out.println("3. Complete booking");
-            System.out.println("4. Exit");
-
-            int choice = sc.nextInt();
-
-            switch (choice) {
-                case 1:
-                    List<Room> availableRooms = roomRepo.getAllRooms().stream()
-                            .filter(r -> r.getStatus() == RoomStatus.AVAILABLE)
-                            .toList();
-
-                    if (availableRooms.isEmpty()) {
-                        System.out.println("No rooms are currently available.");
-                        break;
-                    }
-
-                    System.out.println("\n--- Available Rooms ---");
-                    System.out.printf("%-6s %-12s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
-                    System.out.println("----------------------------------------------");
-                    for (Room r : availableRooms) {
-                        System.out.printf("%-6d %-12s $%-9.2f %-10d%n",
-                                r.getRoomId(),
-                                r.getRoomType().getDisplayName(),
-                                r.getPrice(),
-                                r.getRoomType().getDefaultCapacity()
-                        );
-                    }
-                    System.out.println();
-
-                    System.out.print("Enter room ID: ");
-                    int roomId = sc.nextInt();
-                    sc.nextLine();
-
-                    System.out.print("Start date (YYYY-MM-DD): ");
-                    LocalDate start = LocalDate.parse(sc.nextLine().trim());
-
-                    System.out.print("End date (YYYY-MM-DD): ");
-                    LocalDate end = LocalDate.parse(sc.nextLine().trim());
-
-                    System.out.print("Enter your name: ");
-                    String customerName = sc.nextLine().trim();
-
-                    System.out.print("Enter your email: ");
-                    String customerEmail = sc.nextLine().trim();
-
-                    Room room = roomRepo.getRoomById(roomId);
-                    if (room == null) {
-                        System.out.println("Room ID " + roomId + " not found.");
-                        break;
-                    }
-
-                    Customer customer = new Customer(1, customerName, customerEmail);
-                    DateRange dr = new DateRange(start, end);
-
-                    Booking booking = manager.createBooking(customer, room, dr);
-                    System.out.println("Booking created with ID: " + booking.getBookingId());
-                    break;
-
-                case 2:
-                    System.out.print("Enter your email: ");
-                    sc.nextLine();
-                    String cancelEmail = sc.nextLine().trim();
-
-                    System.out.print("Enter booking ID: ");
-                    int cancelId = sc.nextInt();
-
-                    try {
-                        manager.cancelBooking(cancelId, cancelEmail);
-                        System.out.println("Booking cancelled.");
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    } catch (SecurityException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    } catch (IllegalStateException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    }
-                    break;
-
-                case 3:
-                    List<Booking> pendingBookings = bookingRepo.findByStatus(BookingStatus.PENDING);
-
-                    if (pendingBookings.isEmpty()) {
-                        System.out.println("No pending bookings.");
-                        break;
-                    }
-
-                    System.out.println("\n--- Pending Bookings ---");
-                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-10s%n",
-                            "ID", "Customer", "Email", "Room", "Type", "Dates");
-                    System.out.println("----------------------------------------------------------------------");
-                    for (Booking b : pendingBookings) {
-                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %s to %s%n",
-                                b.getBookingId(),
-                                b.getCustomer().getName(),
-                                b.getCustomer().getEmail(),
-                                b.getRoom().getRoomId(),
-                                b.getRoom().getRoomType().getDisplayName(),
-                                b.getDateRange().getStart(),
-                                b.getDateRange().getEnd()
-                        );
-                    }
-                    System.out.println();
-                    System.out.print("Enter booking ID: ");
-                    int completeId = sc.nextInt();
-                    manager.completeBooking(completeId);
-                    System.out.println("Booking completed");
-                    break;
-
-                case 4:
-                    sc.close();
-                    return;
-            }
-        }
+        
     }
 
     private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
@@ -279,6 +163,19 @@ public class HotelApp {
                         Room status: AVAILABLE
                  */
                 case 3:
+                	sc.nextLine(); 
+
+                    System.out.print("Enter your email: ");
+                    String checkoutEmail = sc.nextLine().trim();
+
+                    System.out.print("Enter booking ID: ");
+                    int checkoutId = sc.nextInt();
+
+                    try {
+                        manager.requestCheckout(checkoutId, checkoutEmail);
+                    } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     return;
 
                 case 4:
@@ -316,4 +213,123 @@ public class HotelApp {
 //            }
 //        }
 //    }
+    /*
+     * while (true) {
+            System.out.println("=== HOTEL BOOKING SYSTEM ===");
+            System.out.println("1. Book a room");
+            System.out.println("2. Cancel booking");
+            System.out.println("3. Complete booking");
+            System.out.println("4. Exit");
+
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    List<Room> availableRooms = roomRepo.getAllRooms().stream()
+                            .filter(r -> r.getStatus() == RoomStatus.AVAILABLE)
+                            .toList();
+
+                    if (availableRooms.isEmpty()) {
+                        System.out.println("No rooms are currently available.");
+                        break;
+                    }
+
+                    System.out.println("\n--- Available Rooms ---");
+                    System.out.printf("%-6s %-12s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
+                    System.out.println("----------------------------------------------");
+                    for (Room r : availableRooms) {
+                        System.out.printf("%-6d %-12s $%-9.2f %-10d%n",
+                                r.getRoomId(),
+                                r.getRoomType().getDisplayName(),
+                                r.getPrice(),
+                                r.getRoomType().getDefaultCapacity()
+                        );
+                    }
+                    System.out.println();
+
+                    System.out.print("Enter room ID: ");
+                    int roomId = sc.nextInt();
+                    sc.nextLine();
+
+                    System.out.print("Start date (YYYY-MM-DD): ");
+                    LocalDate start = LocalDate.parse(sc.nextLine().trim());
+
+                    System.out.print("End date (YYYY-MM-DD): ");
+                    LocalDate end = LocalDate.parse(sc.nextLine().trim());
+
+                    System.out.print("Enter your name: ");
+                    String customerName = sc.nextLine().trim();
+
+                    System.out.print("Enter your email: ");
+                    String customerEmail = sc.nextLine().trim();
+
+                    Room room = roomRepo.getRoomById(roomId);
+                    if (room == null) {
+                        System.out.println("Room ID " + roomId + " not found.");
+                        break;
+                    }
+
+                    Customer customer = new Customer(1, customerName, customerEmail);
+                    DateRange dr = new DateRange(start, end);
+
+                    Booking booking = manager.createBooking(customer, room, dr);
+                    System.out.println("Booking created with ID: " + booking.getBookingId());
+                    break;
+
+                case 2:
+                    System.out.print("Enter your email: ");
+                    sc.nextLine();
+                    String cancelEmail = sc.nextLine().trim();
+
+                    System.out.print("Enter booking ID: ");
+                    int cancelId = sc.nextInt();
+
+                    try {
+                        manager.cancelBooking(cancelId, cancelEmail);
+                        System.out.println("Booking cancelled.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    } catch (SecurityException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    } catch (IllegalStateException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                    break;
+
+                case 3:
+                    List<Booking> pendingBookings = bookingRepo.findByStatus(BookingStatus.PENDING);
+
+                    if (pendingBookings.isEmpty()) {
+                        System.out.println("No pending bookings.");
+                        break;
+                    }
+
+                    System.out.println("\n--- Pending Bookings ---");
+                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-10s%n",
+                            "ID", "Customer", "Email", "Room", "Type", "Dates");
+                    System.out.println("----------------------------------------------------------------------");
+                    for (Booking b : pendingBookings) {
+                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %s to %s%n",
+                                b.getBookingId(),
+                                b.getCustomer().getName(),
+                                b.getCustomer().getEmail(),
+                                b.getRoom().getRoomId(),
+                                b.getRoom().getRoomType().getDisplayName(),
+                                b.getDateRange().getStart(),
+                                b.getDateRange().getEnd()
+                        );
+                    }
+                    System.out.println();
+                    System.out.print("Enter booking ID: ");
+                    int completeId = sc.nextInt();
+                    manager.completeBooking(completeId);
+                    System.out.println("Booking completed");
+                    break;
+
+                case 4:
+                    sc.close();
+                    return;
+            }
+        }
+     */
 }

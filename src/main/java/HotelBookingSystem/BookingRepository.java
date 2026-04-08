@@ -108,7 +108,7 @@ public class BookingRepository implements IBookingRepository {
         }
     }
 
-    public void saveToFile() {
+    private void saveToFile() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
             for (Booking b : bookings.values()) {
                 String line = String.join(",",

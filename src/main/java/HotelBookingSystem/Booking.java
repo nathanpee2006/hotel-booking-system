@@ -54,7 +54,7 @@ public class Booking implements ICancelable {
     }
     
 
-    public void setBookingStatus(BookingStatus stat) {
-    	this.bookingStatus = stat.getBookingStatus();
+    public void setBookingStatus(BookingStatus status) {
+    	this.bookingStatus = status;
     }
 }

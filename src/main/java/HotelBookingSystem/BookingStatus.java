@@ -9,7 +9,6 @@ public enum BookingStatus {
     CHECKOUT_REQUESTED("Checkout Requested");
 
     private String status;
-    private BookingStatus stat;
 
     private BookingStatus(String status) {
         this.status = status;
@@ -18,9 +17,4 @@ public enum BookingStatus {
     public String getStatus() {
         return this.status;
     }
-    
-    public BookingStatus getBookingStatus() {
-    	return this.stat;
-    }
-    
 }

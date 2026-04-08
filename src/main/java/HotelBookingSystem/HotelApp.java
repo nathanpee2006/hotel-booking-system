@@ -32,9 +32,6 @@ public class HotelApp {
         } else {
             System.out.println("Invalid choice. Exiting...");
         }
-
-        // What is the purpose of this? Can this be moved to runClerkMenu
-        
     }
 
     private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
@@ -112,12 +109,7 @@ public class HotelApp {
 
                     break;
 
-                /* 
-                    TODO: Currently, other customers can cancel others bookings.
-                    Add some validation (not sure yet how).
-                        
-                    When is the cancellation period? If the booking is in a PENDING state? Can a booking that is COMPLETED be cancelled?
-                    
+                /*  
                         Allowed:
                         Jan cancels his own booking.
                     
@@ -157,13 +149,12 @@ public class HotelApp {
                     break;
 
                 /*
-                    TODO: Customer checkout feature?
                         Customer checks out. (Room status: OCCUPIED)
-                        Hotel clerk needs to confirm?
+                        Hotel clerk needs to confirm.
                         Room status: AVAILABLE
                  */
                 case 3:
-                	sc.nextLine(); 
+                    sc.nextLine();
 
                     System.out.print("Enter your email: ");
                     String checkoutEmail = sc.nextLine().trim();
@@ -176,7 +167,7 @@ public class HotelApp {
                     } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
-                    return;
+                    break;
 
                 case 4:
                     return;

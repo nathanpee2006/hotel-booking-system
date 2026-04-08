@@ -5,7 +5,6 @@ public class BookingManager {
     private final IRoomRepository roomRepo;
     private final IBookingRepository bookingRepo;
     private final IPaymentProcessor paymentProcessor;
-    
 
     public BookingManager(IRoomRepository roomRepo,
             IBookingRepository bookingRepo,
@@ -110,7 +109,7 @@ public class BookingManager {
         booking.getRoom().release(booking.getDateRange().getStart(), booking.getDateRange().getEnd());
         roomRepo.updateRoom(booking.getRoom());
     }
-    
+
     public void requestCheckout(int bookingId, String customerEmail) {
 
         Booking booking = bookingRepo.findById(bookingId);
@@ -130,18 +129,14 @@ public class BookingManager {
 
         if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
             throw new IllegalStateException(
-                "Checkout is only allowed for completed bookings (COMPLETED)."
+                    "Checkout is only allowed for completed bookings (COMPLETED)."
             );
         }
 
         booking.setBookingStatus(BookingStatus.CHECKOUT_REQUESTED);
         bookingRepo.update(booking);
 
-        //my bad... bookings.csv, i still had my previous txt files inside my resources...
-        bookingRepo.saveToFile();
-
         System.out.println("Checkout request submitted. A hotel clerk will confirm your checkout.");
     }
-
 
 }

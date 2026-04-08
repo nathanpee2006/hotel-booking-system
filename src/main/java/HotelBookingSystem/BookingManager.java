@@ -5,6 +5,7 @@ public class BookingManager {
     private final IRoomRepository roomRepo;
     private final IBookingRepository bookingRepo;
     private final IPaymentProcessor paymentProcessor;
+    
 
     public BookingManager(IRoomRepository roomRepo,
             IBookingRepository bookingRepo,
@@ -109,4 +110,38 @@ public class BookingManager {
         booking.getRoom().release(booking.getDateRange().getStart(), booking.getDateRange().getEnd());
         roomRepo.updateRoom(booking.getRoom());
     }
+    
+    public void requestCheckout(int bookingId, String customerEmail) {
+
+        Booking booking = bookingRepo.findById(bookingId);
+
+        //I just added any possible instance(not final) baka may na-miss parin ako I'm up for some other suggestions to add...
+        if (booking == null) {
+            throw new IllegalArgumentException("Booking not found.");
+        }
+
+        if (!booking.getCustomer().getEmail().equalsIgnoreCase(customerEmail)) {
+            throw new SecurityException("You can only check out your own booking.");
+        }
+
+        if (booking.getBookingStatus() == BookingStatus.PENDING) {
+            throw new IllegalStateException("This booking is currently pending.");
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
+            throw new IllegalStateException(
+                "Checkout is only allowed for completed bookings (COMPLETED)."
+            );
+        }
+
+        booking.setBookingStatus(BookingStatus.CHECKOUT_REQUESTED);
+        bookingRepo.update(booking);
+
+        //my bad... bookings.csv, i still had my previous txt files inside my resources...
+        bookingRepo.saveToFile();
+
+        System.out.println("Checkout request submitted. A hotel clerk will confirm your checkout.");
+    }
+
+
 }

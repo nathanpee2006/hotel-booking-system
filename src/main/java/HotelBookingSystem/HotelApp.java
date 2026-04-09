@@ -28,7 +28,7 @@ public class HotelApp {
         if (userType == 1) {
             runCustomerMenu(sc, manager, roomRepo, bookingRepo);
         } else if (userType == 2) {
-//            runClerkMenu(sc, manager);
+            runClerkMenu(sc, manager, roomRepo, bookingRepo);
         } else {
             System.out.println("Invalid choice. Exiting...");
         }
@@ -176,49 +176,25 @@ public class HotelApp {
         }
     }
 
-//    private static void runClerkMenu(Scanner sc, BookingManager manager) {
-//
-//        HotelClerk clerk = new HotelClerk(100, "Clerk", "clerk@hotel.com", manager);
-//
-//        while (true) {
-//            System.out.println("\n=== HOTEL CLERK MENU ===");
-//            System.out.println("1. Confirm checkout");
-//            System.out.println("2. View schedule");
-//            System.out.println("3. Exit");
-//
-//            int choice = sc.nextInt();
-//
-//            switch (choice) {
-//                case 1:
-//                    System.out.print("Enter booking ID: ");
-//                    int bookingId = sc.nextInt();
-//                    clerk.confirmCheckout(bookingId);
-//                    break;
-//
-//                case 2:
-//                    clerk.viewSchedule();
-//                    break;
-//
-//                case 3:
-//                    return;
-//            }
-//        }
-//    }
-    /*
-     * while (true) {
-            System.out.println("=== HOTEL BOOKING SYSTEM ===");
+    private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
+
+        HotelClerk clerk = new HotelClerk(1, "Clerk", "clerk@hotel.com", manager);
+
+        while (true) {
+            System.out.println("\n=== HOTEL CLERK MENU ===");
             System.out.println("1. Book a room");
-            System.out.println("2. Cancel booking");
-            System.out.println("3. Complete booking");
-            System.out.println("4. Exit");
+            System.out.println("2. Complete booking");
+            System.out.println("3. Cancel booking");
+            System.out.println("4. Confirm checkout");
+            System.out.println("5. Exit");
 
             int choice = sc.nextInt();
 
             switch (choice) {
+
+                // TODO: Book a room (Jan)
                 case 1:
-                    List<Room> availableRooms = roomRepo.getAllRooms().stream()
-                            .filter(r -> r.getStatus() == RoomStatus.AVAILABLE)
-                            .toList();
+                    List<Room> availableRooms = roomRepo.getAllRooms();
 
                     if (availableRooms.isEmpty()) {
                         System.out.println("No rooms are currently available.");
@@ -263,31 +239,17 @@ public class HotelApp {
                     Customer customer = new Customer(1, customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
-                    Booking booking = manager.createBooking(customer, room, dr);
-                    System.out.println("Booking created with ID: " + booking.getBookingId());
-                    break;
-
-                case 2:
-                    System.out.print("Enter your email: ");
-                    sc.nextLine();
-                    String cancelEmail = sc.nextLine().trim();
-
-                    System.out.print("Enter booking ID: ");
-                    int cancelId = sc.nextInt();
-
                     try {
-                        manager.cancelBooking(cancelId, cancelEmail);
-                        System.out.println("Booking cancelled.");
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
-                    } catch (SecurityException e) {
-                        System.out.println("Error: " + e.getMessage());
+                        Booking booking = manager.createBooking(customer, room, dr);
+                        System.out.println("Booking created with ID: " + booking.getBookingId());
                     } catch (IllegalStateException e) {
-                        System.out.println("Error: " + e.getMessage());
+                        System.out.println("Booking has been already made on this room.");
                     }
+
                     break;
 
-                case 3:
+                // TODO: Complete booking (Nathan)
+                case 2:
                     List<Booking> pendingBookings = bookingRepo.findByStatus(BookingStatus.PENDING);
 
                     if (pendingBookings.isEmpty()) {
@@ -317,10 +279,17 @@ public class HotelApp {
                     System.out.println("Booking completed");
                     break;
 
+                // TODO: Approve cancellation of bookings (Nathan)
+                case 3:
+                    break;
+
+                // TODO: Confirm checkout (Jan)
                 case 4:
-                    sc.close();
+                    break;
+
+                case 5:
                     return;
             }
         }
-     */
+    }
 }

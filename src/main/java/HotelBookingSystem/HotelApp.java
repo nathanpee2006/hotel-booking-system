@@ -16,21 +16,30 @@ public class HotelApp {
 
         BookingManager manager = new BookingManager(roomRepo, bookingRepo, paymentProcessor);
 
-        System.out.println("=== Welcome to the Hotel Booking System ===");
-
-        // LOGIN STEP
-        System.out.println("Login as:");
-        System.out.println("1. Customer");
-        System.out.println("2. Hotel Clerk");
-
-        int userType = sc.nextInt();
-
-        if (userType == 1) {
-            runCustomerMenu(sc, manager, roomRepo, bookingRepo);
-        } else if (userType == 2) {
-            runClerkMenu(sc, manager, roomRepo, bookingRepo);
-        } else {
-            System.out.println("Invalid choice. Exiting...");
+        while (true) {
+            System.out.println("\n=== Welcome to the Hotel Booking System ===");
+            System.out.println("Login as:");
+            System.out.println("1. Customer");
+            System.out.println("2. Hotel Clerk");
+            System.out.println("3. Close");
+            
+            int userType = sc.nextInt();
+            
+            switch (userType) {
+                case 1:
+                    runCustomerMenu(sc, manager, roomRepo, bookingRepo);
+                    break;
+                case 2:
+                    runClerkMenu(sc, manager, roomRepo, bookingRepo);
+                    break;
+                case 3:
+                    System.out.println("Closing...");
+                    sc.close();
+                    return;
+                default:
+                    System.out.println("Please enter a valid option.");
+                    break;
+            }
         }
     }
 

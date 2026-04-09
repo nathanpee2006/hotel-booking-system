@@ -248,7 +248,6 @@ public class HotelApp {
 
                     break;
 
-                // TODO: Complete booking (Nathan)
                 case 2:
                     List<Booking> pendingBookings = bookingRepo.findByStatus(BookingStatus.PENDING);
 
@@ -279,8 +278,44 @@ public class HotelApp {
                     System.out.println("Booking completed");
                     break;
 
-                // TODO: Approve cancellation of bookings (Nathan)
                 case 3:
+                    List<Booking> cancellationRequests = bookingRepo.findByStatus(BookingStatus.CANCELLATION_REQUESTED);
+
+                    if (cancellationRequests.isEmpty()) {
+                        System.out.println("No cancellation requests.");
+                        break;
+                    }
+
+                    System.out.println("\n--- Cancellation Requests ---");
+                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-22s %-10s%n",
+                            "ID", "Customer", "Email", "Room", "Type", "Dates", "Status");
+                    System.out.println("--------------------------------------------------------------------------------------------");
+                    for (Booking b : cancellationRequests) {
+                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %-22s %-10s%n",
+                                b.getBookingId(),
+                                b.getCustomer().getName(),
+                                b.getCustomer().getEmail(),
+                                b.getRoom().getRoomId(),
+                                b.getRoom().getRoomType().getDisplayName(),
+                                b.getDateRange().getStart() + " to " + b.getDateRange().getEnd(),
+                                b.getBookingStatus().getStatus()
+                        );
+                    }
+                    System.out.println();
+
+                    System.out.print("Enter booking ID to approve (0 to go back): ");
+                    int approveId = sc.nextInt();
+
+                    if (approveId == 0) {
+                        break;
+                    }
+
+                    try {
+                        manager.approveCancellation(approveId);
+                        System.out.println("Cancellation approved. Refund issued.");
+                    } catch (IllegalArgumentException | IllegalStateException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
 
                 // TODO: Confirm checkout (Jan)

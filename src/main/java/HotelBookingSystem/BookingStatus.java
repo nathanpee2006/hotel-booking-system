@@ -6,7 +6,8 @@ public enum BookingStatus {
     CANCELLED("Cancelled"),
     COMPLETED("Completed"),
     CANCELLATION_REQUESTED("Cancellation Requested"),
-    CHECKOUT_REQUESTED("Checkout Requested");
+    CHECKOUT_REQUESTED("Checkout Requested"),
+    CHECKED_OUT("Checked Out");
 
     private String status;
 

@@ -49,6 +49,13 @@ public class BookingRepository implements IBookingRepository {
                 .filter(b -> b.getBookingStatus() == status)
                 .toList();
     }
+    
+    @Override
+    public List<Booking> findByEmail(String email) {
+        return bookings.values().stream()
+                .filter(b -> b.getCustomer().getEmail().equalsIgnoreCase(email))
+                .toList();
+    }
 
     // -------------------------------------------------------------------------
     // File I/O

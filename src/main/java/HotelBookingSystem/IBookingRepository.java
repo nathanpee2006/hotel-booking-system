@@ -13,5 +13,7 @@ public interface IBookingRepository {
     public int generateId();
 
     public List<Booking> findByStatus(BookingStatus status);
+    
+    public List<Booking> findByEmail(String email);
 
 }

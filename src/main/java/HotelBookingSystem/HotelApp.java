@@ -167,6 +167,28 @@ public class HotelApp {
 
                     System.out.print("Enter your email: ");
                     String checkoutEmail = sc.nextLine().trim();
+                    
+                    List<Booking> myBookings = bookingRepo.findByEmail(checkoutEmail);
+
+                    if (myBookings.isEmpty()) {
+                        System.out.println("No bookings found for email: " + checkoutEmail);
+                        break;
+                    }
+
+                    System.out.println("\n--- Your Bookings ---");
+                    System.out.printf("%-6s %-8s %-12s %-12s %-12s%n",
+                            "ID", "Room", "Start", "End", "Status");
+                    System.out.println("-----------------------------------------------------");
+
+                    for (Booking b : myBookings) {
+                        System.out.printf("%-6d %-8d %-12s %-12s %-12s%n",
+                                b.getBookingId(),
+                                b.getRoom().getRoomId(),
+                                b.getDateRange().getStart(),
+                                b.getDateRange().getEnd(),
+                                b.getBookingStatus().name()
+                        );
+                    }
 
                     System.out.print("Enter booking ID: ");
                     int checkoutId = sc.nextInt();
@@ -187,7 +209,7 @@ public class HotelApp {
 
     private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
 
-        HotelClerk clerk = new HotelClerk(1, "Clerk", "clerk@hotel.com", manager);
+        //HotelClerk clerk = new HotelClerk(1, "Clerk", "clerk@hotel.com", manager);
 
         while (true) {
             System.out.println("\n=== HOTEL CLERK MENU ===");
@@ -201,7 +223,6 @@ public class HotelApp {
 
             switch (choice) {
 
-                // TODO: Book a room (Jan)
                 case 1:
                     List<Room> availableRooms = roomRepo.getAllRooms();
 
@@ -327,8 +348,34 @@ public class HotelApp {
                     }
                     break;
 
-                // TODO: Confirm checkout (Jan)
                 case 4:
+                	List<Booking> checkOutRequests = bookingRepo.findByStatus(BookingStatus.CHECKOUT_REQUESTED);
+
+                    if (checkOutRequests.isEmpty()) {
+                        System.out.println("No checkout requsts.");
+                        break;
+                    }
+
+                    System.out.println("\n--- Pending Requests ---");
+                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-10s%n",
+                            "ID", "Customer", "Email", "Room", "Type", "Dates");
+                    System.out.println("----------------------------------------------------------------------");
+                    for (Booking b : checkOutRequests) {
+                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %s to %s%n",
+                                b.getBookingId(),
+                                b.getCustomer().getName(),
+                                b.getCustomer().getEmail(),
+                                b.getRoom().getRoomId(),
+                                b.getRoom().getRoomType().getDisplayName(),
+                                b.getDateRange().getStart(),
+                                b.getDateRange().getEnd()
+                        );
+                    }
+                    System.out.println();
+                    System.out.print("Enter booking ID: ");
+                    int checkoutId = sc.nextInt();
+                    manager.confirmCheckout(checkoutId);
+                    System.out.println("Customer has been Checked Out.");
                     break;
 
                 case 5:

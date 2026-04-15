@@ -138,5 +138,30 @@ public class BookingManager {
 
         System.out.println("Checkout request submitted. A hotel clerk will confirm your checkout.");
     }
+    
+    public void confirmCheckout(int bookingId) {
+
+        Booking booking = bookingRepo.findById(bookingId);
+
+        if (booking == null) {
+            throw new IllegalArgumentException("Booking not found.");
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.CHECKOUT_REQUESTED) {
+            throw new IllegalStateException(
+                "Checkout can only be confirmed for checkout requests."
+            );
+        }
+
+        booking.setBookingStatus(BookingStatus.CHECKED_OUT);
+        bookingRepo.update(booking);
+
+        Room room = booking.getRoom();
+        room.release(booking.getDateRange().getStart(), booking.getDateRange().getEnd());
+        roomRepo.updateRoom(room);
+
+        System.out.println("Checkout confirmed for booking ID: " + bookingId);
+    }
+    
 
 }

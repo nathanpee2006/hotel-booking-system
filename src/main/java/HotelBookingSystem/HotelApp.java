@@ -22,9 +22,9 @@ public class HotelApp {
             System.out.println("1. Customer");
             System.out.println("2. Hotel Clerk");
             System.out.println("3. Close");
-            
+
             int userType = sc.nextInt();
-            
+
             switch (userType) {
                 case 1:
                     runCustomerMenu(sc, manager, roomRepo, bookingRepo);
@@ -43,6 +43,9 @@ public class HotelApp {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Customer Menu
+    // -------------------------------------------------------------------------
     private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
 
         while (true) {
@@ -50,12 +53,12 @@ public class HotelApp {
             System.out.println("1. Book a room");
             System.out.println("2. Cancel booking");
             System.out.println("3. Checkout");
-            System.out.println("4. Exit");
+            System.out.println("4. Back");
 
             int choice = sc.nextInt();
 
             switch (choice) {
-                /* 
+                /*
                         ALLOWED:
                             Booking 1: Room 101 -> 04/07 - 04/10 : STATUS OCCUPIED
                             Booking 2: Room 101 -> 04/11 -> 04/12 : STATUS RESERVED
@@ -72,17 +75,7 @@ public class HotelApp {
                     }
 
                     System.out.println("\n--- Available Rooms ---");
-                    System.out.printf("%-6s %-12s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
-                    System.out.println("----------------------------------------------");
-                    for (Room r : availableRooms) {
-                        System.out.printf("%-6d %-12s $%-9.2f %-10d%n",
-                                r.getRoomId(),
-                                r.getRoomType().getDisplayName(),
-                                r.getPrice(),
-                                r.getRoomType().getDefaultCapacity()
-                        );
-                    }
-                    System.out.println();
+                    printRoomTable(availableRooms);
 
                     System.out.print("Enter room ID: ");
                     int roomId = sc.nextInt();
@@ -115,13 +108,12 @@ public class HotelApp {
                     } catch (IllegalStateException e) {
                         System.out.println("Booking has been already made on this room.");
                     }
-
                     break;
 
-                /*  
+                /*
                         Allowed:
                         Jan cancels his own booking.
-                    
+
                         Not Allowed:
                         Jan cancels Booking of Nathan.
                  */
@@ -130,7 +122,17 @@ public class HotelApp {
                     sc.nextLine();
                     String cancelEmail = sc.nextLine().trim();
 
-                    System.out.print("Enter booking ID: ");
+                    List<Booking> customerBookings = bookingRepo.findByEmail(cancelEmail);
+
+                    if (customerBookings.isEmpty()) {
+                        System.out.println("No bookings found for " + cancelEmail + ".");
+                        break;
+                    }
+
+                    System.out.println("\n--- Your Bookings ---");
+                    printBookingTable(customerBookings);
+
+                    System.out.print("Enter booking ID to cancel: ");
                     int cancelId = sc.nextInt();
 
                     try {
@@ -167,7 +169,7 @@ public class HotelApp {
 
                     System.out.print("Enter your email: ");
                     String checkoutEmail = sc.nextLine().trim();
-                    
+
                     List<Booking> myBookings = bookingRepo.findByEmail(checkoutEmail);
 
                     if (myBookings.isEmpty()) {
@@ -176,25 +178,14 @@ public class HotelApp {
                     }
 
                     System.out.println("\n--- Your Bookings ---");
-                    System.out.printf("%-6s %-8s %-12s %-12s %-12s%n",
-                            "ID", "Room", "Start", "End", "Status");
-                    System.out.println("-----------------------------------------------------");
-
-                    for (Booking b : myBookings) {
-                        System.out.printf("%-6d %-8d %-12s %-12s %-12s%n",
-                                b.getBookingId(),
-                                b.getRoom().getRoomId(),
-                                b.getDateRange().getStart(),
-                                b.getDateRange().getEnd(),
-                                b.getBookingStatus().name()
-                        );
-                    }
+                    printBookingTable(myBookings);
 
                     System.out.print("Enter booking ID: ");
                     int checkoutId = sc.nextInt();
 
                     try {
                         manager.requestCheckout(checkoutId, checkoutEmail);
+                        System.out.println("Checkout request submitted. Awaiting clerk confirmation.");
                     } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
@@ -202,22 +193,22 @@ public class HotelApp {
 
                 case 4:
                     return;
-
             }
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Clerk Menu
+    // -------------------------------------------------------------------------
     private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
-
-        //HotelClerk clerk = new HotelClerk(1, "Clerk", "clerk@hotel.com", manager);
 
         while (true) {
             System.out.println("\n=== HOTEL CLERK MENU ===");
             System.out.println("1. Book a room");
             System.out.println("2. Complete booking");
-            System.out.println("3. Cancel booking");
+            System.out.println("3. Approve cancellation request");
             System.out.println("4. Confirm checkout");
-            System.out.println("5. Exit");
+            System.out.println("5. Back");
 
             int choice = sc.nextInt();
 
@@ -232,17 +223,7 @@ public class HotelApp {
                     }
 
                     System.out.println("\n--- Available Rooms ---");
-                    System.out.printf("%-6s %-12s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
-                    System.out.println("----------------------------------------------");
-                    for (Room r : availableRooms) {
-                        System.out.printf("%-6d %-12s $%-9.2f %-10d%n",
-                                r.getRoomId(),
-                                r.getRoomType().getDisplayName(),
-                                r.getPrice(),
-                                r.getRoomType().getDefaultCapacity()
-                        );
-                    }
-                    System.out.println();
+                    printRoomTable(availableRooms);
 
                     System.out.print("Enter room ID: ");
                     int roomId = sc.nextInt();
@@ -254,10 +235,10 @@ public class HotelApp {
                     System.out.print("End date (YYYY-MM-DD): ");
                     LocalDate end = LocalDate.parse(sc.nextLine().trim());
 
-                    System.out.print("Enter your name: ");
+                    System.out.print("Enter customer name: ");
                     String customerName = sc.nextLine().trim();
 
-                    System.out.print("Enter your email: ");
+                    System.out.print("Enter customer email: ");
                     String customerEmail = sc.nextLine().trim();
 
                     Room room = roomRepo.getRoomById(roomId);
@@ -275,7 +256,6 @@ public class HotelApp {
                     } catch (IllegalStateException e) {
                         System.out.println("Booking has been already made on this room.");
                     }
-
                     break;
 
                 case 2:
@@ -287,25 +267,17 @@ public class HotelApp {
                     }
 
                     System.out.println("\n--- Pending Bookings ---");
-                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-10s%n",
-                            "ID", "Customer", "Email", "Room", "Type", "Dates");
-                    System.out.println("----------------------------------------------------------------------");
-                    for (Booking b : pendingBookings) {
-                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %s to %s%n",
-                                b.getBookingId(),
-                                b.getCustomer().getName(),
-                                b.getCustomer().getEmail(),
-                                b.getRoom().getRoomId(),
-                                b.getRoom().getRoomType().getDisplayName(),
-                                b.getDateRange().getStart(),
-                                b.getDateRange().getEnd()
-                        );
-                    }
-                    System.out.println();
+                    printBookingTable(pendingBookings);
+
                     System.out.print("Enter booking ID: ");
                     int completeId = sc.nextInt();
-                    manager.completeBooking(completeId);
-                    System.out.println("Booking completed");
+
+                    try {
+                        manager.completeBooking(completeId);
+                        System.out.println("Booking completed.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
 
                 case 3:
@@ -317,21 +289,7 @@ public class HotelApp {
                     }
 
                     System.out.println("\n--- Cancellation Requests ---");
-                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-22s %-10s%n",
-                            "ID", "Customer", "Email", "Room", "Type", "Dates", "Status");
-                    System.out.println("--------------------------------------------------------------------------------------------");
-                    for (Booking b : cancellationRequests) {
-                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %-22s %-10s%n",
-                                b.getBookingId(),
-                                b.getCustomer().getName(),
-                                b.getCustomer().getEmail(),
-                                b.getRoom().getRoomId(),
-                                b.getRoom().getRoomType().getDisplayName(),
-                                b.getDateRange().getStart() + " to " + b.getDateRange().getEnd(),
-                                b.getBookingStatus().getStatus()
-                        );
-                    }
-                    System.out.println();
+                    printBookingTable(cancellationRequests);
 
                     System.out.print("Enter booking ID to approve (0 to go back): ");
                     int approveId = sc.nextInt();
@@ -349,38 +307,65 @@ public class HotelApp {
                     break;
 
                 case 4:
-                	List<Booking> checkOutRequests = bookingRepo.findByStatus(BookingStatus.CHECKOUT_REQUESTED);
+                    List<Booking> checkOutRequests = bookingRepo.findByStatus(BookingStatus.CHECKOUT_REQUESTED);
 
                     if (checkOutRequests.isEmpty()) {
-                        System.out.println("No checkout requsts.");
+                        System.out.println("No checkout requests.");
                         break;
                     }
 
-                    System.out.println("\n--- Pending Requests ---");
-                    System.out.printf("%-6s %-16s %-24s %-6s %-14s %-10s%n",
-                            "ID", "Customer", "Email", "Room", "Type", "Dates");
-                    System.out.println("----------------------------------------------------------------------");
-                    for (Booking b : checkOutRequests) {
-                        System.out.printf("%-6d %-16s %-24s %-6d %-14s %s to %s%n",
-                                b.getBookingId(),
-                                b.getCustomer().getName(),
-                                b.getCustomer().getEmail(),
-                                b.getRoom().getRoomId(),
-                                b.getRoom().getRoomType().getDisplayName(),
-                                b.getDateRange().getStart(),
-                                b.getDateRange().getEnd()
-                        );
-                    }
-                    System.out.println();
+                    System.out.println("\n--- Checkout Requests ---");
+                    printBookingTable(checkOutRequests);
+
                     System.out.print("Enter booking ID: ");
                     int checkoutId = sc.nextInt();
-                    manager.confirmCheckout(checkoutId);
-                    System.out.println("Customer has been Checked Out.");
+
+                    try {
+                        manager.confirmCheckout(checkoutId);
+                        System.out.println("Customer has been checked out.");
+                    } catch (IllegalArgumentException | IllegalStateException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
 
                 case 5:
                     return;
             }
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+    private static void printBookingTable(List<Booking> bookings) {
+        System.out.printf("%-6s %-16s %-24s %-6s %-14s %-22s %-10s%n",
+                "ID", "Customer", "Email", "Room", "Type", "Dates", "Status");
+        System.out.println("--------------------------------------------------------------------------------------------");
+        for (Booking b : bookings) {
+            System.out.printf("%-6d %-16s %-24s %-6d %-14s %-22s %-10s%n",
+                    b.getBookingId(),
+                    b.getCustomer().getName(),
+                    b.getCustomer().getEmail(),
+                    b.getRoom().getRoomId(),
+                    b.getRoom().getRoomType().getDisplayName(),
+                    b.getDateRange().getStart() + " to " + b.getDateRange().getEnd(),
+                    b.getBookingStatus().getStatus()
+            );
+        }
+        System.out.println();
+    }
+
+    private static void printRoomTable(List<Room> rooms) {
+        System.out.printf("%-6s %-14s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
+        System.out.println("----------------------------------------------");
+        for (Room r : rooms) {
+            System.out.printf("%-6d %-14s $%-9.2f %-10d%n",
+                    r.getRoomId(),
+                    r.getRoomType().getDisplayName(),
+                    r.getPrice(),
+                    r.getRoomType().getDefaultCapacity()
+            );
+        }
+        System.out.println();
     }
 }

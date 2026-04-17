@@ -105,7 +105,8 @@ public class HotelApp {
                         System.out.println("Room ID " + roomId + " not found.");
                         break;
                     }
-                    
+
+                    Customer customer = new Customer(customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
                     try {

@@ -48,18 +48,6 @@ public class HotelApp {
     // Customer Menu
     // -------------------------------------------------------------------------
     private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
-    	//Please don't remove made to consume a leftover newline
-    	sc.nextLine();
-
-        System.out.println("Enter your name: ");
-        String customerName = sc.nextLine();
-        
-        System.out.println("Enter your email: ");
-        String customerEmail = sc.nextLine();
-        
-        Customer customer = new Customer(customerName, customerEmail, manager);
-    	    	
-        System.out.println(customerName +"\n"+ customerEmail);
         
         while (true) {
             System.out.println("\n=== CUSTOMER MENU ===");
@@ -105,8 +93,14 @@ public class HotelApp {
                         System.out.println("Room ID " + roomId + " not found.");
                         break;
                     }
+                    
+                    System.out.println("Enter your name: ");
+                    String customerName = sc.nextLine();
+                    
+                    System.out.println("Enter your email: ");
+                    String customerEmail = sc.nextLine();
 
-                    Customer customer = new Customer(customerName, customerEmail);
+                    Customer customer = new Customer(customerName, customerEmail, manager);
                     DateRange dr = new DateRange(start, end);
 
                     try {
@@ -135,6 +129,8 @@ public class HotelApp {
                         System.out.println("No bookings found for " + cancelEmail + ".");
                         break;
                     }
+                    
+                    Customer customerCancels = new Customer(null, cancelEmail, manager);
 
                     System.out.println("\n--- Your Bookings ---");
                     printBookingTable(customerBookings);
@@ -151,10 +147,10 @@ public class HotelApp {
                         }
 
                         if (found.getBookingStatus() == BookingStatus.PENDING) {
-                            customer.cancelBooking(cancelId, cancelEmail);
+                            customerCancels.cancelBooking(cancelId, cancelEmail);
                             System.out.println("Booking cancelled successfully.");
                         } else if (found.getBookingStatus() == BookingStatus.COMPLETED) {
-                            customer.requestCancellation(cancelId, cancelEmail);
+                            customerCancels.requestCancellation(cancelId, cancelEmail);
                             System.out.println("Cancellation request submitted. Awaiting clerk approval.");
                         } else {
                             System.out.println("Booking cannot be cancelled in its current state: "
@@ -183,6 +179,8 @@ public class HotelApp {
                         System.out.println("No bookings found for email: " + checkoutEmail);
                         break;
                     }
+                    
+                    Customer customerChecksOut = new Customer(null, checkoutEmail, manager);
 
                     System.out.println("\n--- Your Bookings ---");
                     printBookingTable(myBookings);
@@ -191,7 +189,7 @@ public class HotelApp {
                     int checkoutId = sc.nextInt();
 
                     try {
-                        customer.requestCheckout(checkoutId, checkoutEmail);
+                        customerChecksOut.requestCheckout(checkoutId, checkoutEmail);
                         System.out.println("Checkout request submitted. Awaiting clerk confirmation.");
                     } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
                         System.out.println("Error: " + e.getMessage());
@@ -208,15 +206,9 @@ public class HotelApp {
     // Clerk Menu
     // -------------------------------------------------------------------------
     private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
+
+    	HotelClerk hotelClerk = new HotelClerk(manager);
     	
-    	System.out.print("Enter your name: ");
-        String clerkName = sc.nextLine().trim();
-
-        System.out.print("Enter your email: ");
-        String clerkEmail = sc.nextLine().trim();
-        
-        HotelClerk hotelClerk = new HotelClerk(clerkName, clerkEmail, manager);
-
         while (true) {
             System.out.println("\n=== HOTEL CLERK MENU ===");
             System.out.println("1. Book a room");
@@ -262,7 +254,7 @@ public class HotelApp {
                         break;
                     }
 
-                    Customer customer = new Customer(customerName, customerEmail, manager);
+                    Customer customer = new Customer(customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
                     try {

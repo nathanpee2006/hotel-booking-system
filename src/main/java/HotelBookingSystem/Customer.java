@@ -2,11 +2,15 @@ package HotelBookingSystem;
 
 public class Customer extends User{
 	
-	private final BookingManager manager;
+	private BookingManager manager;
 	
 	public Customer(String name, String email, BookingManager manager) {
 		super(name, email);
 		this.manager = manager;
+	}
+	
+	public Customer(String name, String email) {
+		super(null, email);
 	}
 
     public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
@@ -15,10 +19,6 @@ public class Customer extends User{
     
     public void cancelBooking(int bookingId, String customerEmail) {
     	manager.cancelBooking(bookingId, customerEmail);
-    }
-    
-    public void completeBooking(int bookingId) {
-    	manager.completeBooking(bookingId);
     }
     
     public void requestCancellation(int bookingId, String customerEmail) {

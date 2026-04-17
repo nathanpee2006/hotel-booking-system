@@ -200,7 +200,9 @@ public class HotelApp {
     // -------------------------------------------------------------------------
     // Clerk Menu
     // -------------------------------------------------------------------------
-    private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
+    private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo, IPaymentProcessor paymentProcessor) {
+    	
+    	HotelClerk hotelClerk = new HotelClerk(0, "HotelClerkUser", "*****@gmail.com", manager, roomRepo, bookingRepo, paymentProcessor);
 
         while (true) {
             System.out.println("\n=== HOTEL CLERK MENU ===");
@@ -251,7 +253,7 @@ public class HotelApp {
                     DateRange dr = new DateRange(start, end);
 
                     try {
-                        Booking booking = manager.createBooking(customer, room, dr);
+                        Booking booking = hotelClerk.createBooking(customer, room, dr);
                         System.out.println("Booking created with ID: " + booking.getBookingId());
                     } catch (IllegalStateException e) {
                         System.out.println("Booking has been already made on this room.");
@@ -273,7 +275,7 @@ public class HotelApp {
                     int completeId = sc.nextInt();
 
                     try {
-                        manager.completeBooking(completeId);
+                        hotelClerk.completeBooking(completeId);
                         System.out.println("Booking completed.");
                     } catch (IllegalArgumentException e) {
                         System.out.println("Error: " + e.getMessage());
@@ -299,7 +301,7 @@ public class HotelApp {
                     }
 
                     try {
-                        manager.approveCancellation(approveId);
+                        hotelClerk.approveCancellation(approveId);
                         System.out.println("Cancellation approved. Refund issued.");
                     } catch (IllegalArgumentException | IllegalStateException e) {
                         System.out.println("Error: " + e.getMessage());
@@ -321,7 +323,7 @@ public class HotelApp {
                     int checkoutId = sc.nextInt();
 
                     try {
-                        manager.confirmCheckout(checkoutId);
+                        hotelClerk.confirmCheckout(checkoutId);
                         System.out.println("Customer has been checked out.");
                     } catch (IllegalArgumentException | IllegalStateException e) {
                         System.out.println("Error: " + e.getMessage());

@@ -114,7 +114,6 @@ public class BookingManager {
 
         Booking booking = bookingRepo.findById(bookingId);
 
-        //I just added any possible instance(not final) baka may na-miss parin ako I'm up for some other suggestions to add...
         if (booking == null) {
             throw new IllegalArgumentException("Booking not found.");
         }
@@ -136,7 +135,6 @@ public class BookingManager {
         booking.setBookingStatus(BookingStatus.CHECKOUT_REQUESTED);
         bookingRepo.update(booking);
 
-        System.out.println("Checkout request submitted. A hotel clerk will confirm your checkout.");
     }
     
     public void confirmCheckout(int bookingId) {

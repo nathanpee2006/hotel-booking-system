@@ -49,7 +49,7 @@ public class BookingRepository implements IBookingRepository {
                 .filter(b -> b.getBookingStatus() == status)
                 .toList();
     }
-    
+
     @Override
     public List<Booking> findByEmail(String email) {
         return bookings.values().stream()
@@ -61,8 +61,8 @@ public class BookingRepository implements IBookingRepository {
     // File I/O
     // -------------------------------------------------------------------------
     /**
-     * CSV format (no header): bookingId, customerId, customerName,
-     * customerEmail, roomId, startDate, endDate, bookingStatus
+     * CSV format (no header): bookingId, customerName, customerEmail, roomId,
+     * startDate, endDate, bookingStatus
      */
     private void loadFromFile() {
         File file = new File(FILE_PATH);
@@ -79,22 +79,21 @@ public class BookingRepository implements IBookingRepository {
                 }
 
                 String[] parts = line.split(",");
-                if (parts.length != 8) {
+                if (parts.length != 7) {
                     System.out.println("Skipping malformed booking line: " + line);
                     continue;
                 }
 
                 try {
                     int bookingId = Integer.parseInt(parts[0].trim());
-                    int customerId = Integer.parseInt(parts[1].trim());
-                    String custName = parts[2].trim();
-                    String custEmail = parts[3].trim();
-                    int roomId = Integer.parseInt(parts[4].trim());
-                    LocalDate start = LocalDate.parse(parts[5].trim());
-                    LocalDate end = LocalDate.parse(parts[6].trim());
-                    BookingStatus status = BookingStatus.valueOf(parts[7].trim());
+                    String custName = parts[1].trim();
+                    String custEmail = parts[2].trim();
+                    int roomId = Integer.parseInt(parts[3].trim());
+                    LocalDate start = LocalDate.parse(parts[4].trim());
+                    LocalDate end = LocalDate.parse(parts[5].trim());
+                    BookingStatus status = BookingStatus.valueOf(parts[6].trim());
 
-                    Customer customer = new Customer(customerId, custName, custEmail);
+                    Customer customer = new Customer(custName, custEmail, null);
                     Room room = roomRepo.getRoomById(roomId);
 
                     if (room == null) {
@@ -120,7 +119,6 @@ public class BookingRepository implements IBookingRepository {
             for (Booking b : bookings.values()) {
                 String line = String.join(",",
                         String.valueOf(b.getBookingId()),
-                        String.valueOf(b.getCustomer().getUserId()),
                         b.getCustomer().getName(),
                         b.getCustomer().getEmail(),
                         String.valueOf(b.getRoom().getRoomId()),

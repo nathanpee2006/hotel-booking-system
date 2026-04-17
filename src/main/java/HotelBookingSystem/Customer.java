@@ -2,34 +2,31 @@ package HotelBookingSystem;
 
 public class Customer extends User{
 	
-    public Customer(int userId, String name, String email) { 
+	private final BookingManager manager;
+	
+	public Customer(String name, String email, BookingManager manager) {
+		super(name, email);
+		this.manager = manager;
+	}
 
-        super(userId, name, email); 
-
-    } 
-
-    // TODO: will consider removing methods
-
-    public void requestBooking() { 
-
-        // Select room and dates 
-    	
-    } 
-
-     
-
-    public void requestCancellation() { 
-
-         
-
-    } 
-
-     
-
-    public void checkOut() { 
-
-         
-
-    } 
+    public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
+        return manager.createBooking(customer, room, dateRange);
+    }
+    
+    public void cancelBooking(int bookingId, String customerEmail) {
+    	manager.cancelBooking(bookingId, customerEmail);
+    }
+    
+    public void completeBooking(int bookingId) {
+    	manager.completeBooking(bookingId);
+    }
+    
+    public void requestCancellation(int bookingId, String customerEmail) {
+    	manager.requestCancellation(bookingId, customerEmail);
+    }
+    
+    public void requestCheckout(int bookingId, String customerEmail) {
+    	manager.requestCheckout(bookingId, customerEmail);
+    }
 
 }

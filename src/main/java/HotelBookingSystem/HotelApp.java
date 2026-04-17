@@ -99,7 +99,7 @@ public class HotelApp {
                         break;
                     }
 
-                    Customer customer = new Customer(1, customerName, customerEmail);
+                    Customer customer = new Customer(customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
                     try {
@@ -247,7 +247,7 @@ public class HotelApp {
                         break;
                     }
 
-                    Customer customer = new Customer(1, customerName, customerEmail);
+                    Customer customer = new Customer(customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
                     try {

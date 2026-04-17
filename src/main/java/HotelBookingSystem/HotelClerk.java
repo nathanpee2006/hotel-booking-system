@@ -1,27 +1,17 @@
 package HotelBookingSystem;
 
-public class HotelClerk extends User{
-	
-    public HotelClerk(int userId, String name, String email, BookingManager manager) { 
+public class HotelClerk extends User {
 
-        super(userId, name, email); 
+    public HotelClerk(String name, String email, BookingManager manager) {
+        super(name, email);
+    }
 
-    } 
+    public void confirmCheckout() {
 
-    // TODO: will consider removing methods 
+    }
 
-    public void confirmCheckout() { 
+    public void viewSchedule() {
 
-         
-
-    } 
-
-     
-
-    public void viewSchedule() { 
-
-         
-
-    } 
+    }
 
 }

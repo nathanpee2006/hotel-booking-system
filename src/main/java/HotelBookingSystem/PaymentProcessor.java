@@ -1,7 +1,5 @@
 package HotelBookingSystem;
 
-import java.util.Random;
-
 public class PaymentProcessor implements IPaymentProcessor {
 
     @Override

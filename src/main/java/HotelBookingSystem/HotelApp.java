@@ -16,6 +16,9 @@ public class HotelApp {
 
         BookingManager manager = new BookingManager(roomRepo, bookingRepo, paymentProcessor);
 
+        Customer customer = new Customer("", "", manager);
+        HotelClerk hotelClerk = new HotelClerk("", "", manager);
+
         while (true) {
             System.out.println("\n=== Welcome to the Hotel Booking System ===");
             System.out.println("Login as:");
@@ -27,10 +30,10 @@ public class HotelApp {
 
             switch (userType) {
                 case 1:
-                    runCustomerMenu(sc, manager, roomRepo, bookingRepo);
+                    runCustomerMenu(sc, customer, roomRepo, bookingRepo);
                     break;
                 case 2:
-                    runClerkMenu(sc, manager, roomRepo, bookingRepo);
+                    runClerkMenu(sc, hotelClerk, roomRepo, bookingRepo);
                     break;
                 case 3:
                     System.out.println("Closing...");
@@ -41,14 +44,14 @@ public class HotelApp {
                     break;
             }
         }
-       
+
     }
 
     // -------------------------------------------------------------------------
     // Customer Menu
     // -------------------------------------------------------------------------
-    private static void runCustomerMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
-        
+    private static void runCustomerMenu(Scanner sc, Customer customer, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
+
         while (true) {
             System.out.println("\n=== CUSTOMER MENU ===");
             System.out.println("1. Book a room");
@@ -93,18 +96,18 @@ public class HotelApp {
                         System.out.println("Room ID " + roomId + " not found.");
                         break;
                     }
-                    
-                    System.out.println("Enter your name: ");
+
+                    System.out.print("Enter your name: ");
                     String customerName = sc.nextLine();
-                    
-                    System.out.println("Enter your email: ");
+
+                    System.out.print("Enter your email: ");
                     String customerEmail = sc.nextLine();
 
-                    Customer customer = new Customer(customerName, customerEmail, manager);
+                    Customer customerBooking = new Customer(customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
                     try {
-                        Booking booking = customer.createBooking(customer, room, dr);
+                        Booking booking = customer.createBooking(customerBooking, room, dr);
                         System.out.println("Booking created with ID: " + booking.getBookingId());
                     } catch (IllegalStateException e) {
                         System.out.println("Booking has been already made on this room.");
@@ -129,8 +132,6 @@ public class HotelApp {
                         System.out.println("No bookings found for " + cancelEmail + ".");
                         break;
                     }
-                    
-                    Customer customerCancels = new Customer(null, cancelEmail, manager);
 
                     System.out.println("\n--- Your Bookings ---");
                     printBookingTable(customerBookings);
@@ -147,10 +148,10 @@ public class HotelApp {
                         }
 
                         if (found.getBookingStatus() == BookingStatus.PENDING) {
-                            customerCancels.cancelBooking(cancelId, cancelEmail);
+                            customer.cancelBooking(cancelId, cancelEmail);
                             System.out.println("Booking cancelled successfully.");
                         } else if (found.getBookingStatus() == BookingStatus.COMPLETED) {
-                            customerCancels.requestCancellation(cancelId, cancelEmail);
+                            customer.requestCancellation(cancelId, cancelEmail);
                             System.out.println("Cancellation request submitted. Awaiting clerk approval.");
                         } else {
                             System.out.println("Booking cannot be cancelled in its current state: "
@@ -179,8 +180,6 @@ public class HotelApp {
                         System.out.println("No bookings found for email: " + checkoutEmail);
                         break;
                     }
-                    
-                    Customer customerChecksOut = new Customer(null, checkoutEmail, manager);
 
                     System.out.println("\n--- Your Bookings ---");
                     printBookingTable(myBookings);
@@ -189,7 +188,7 @@ public class HotelApp {
                     int checkoutId = sc.nextInt();
 
                     try {
-                        customerChecksOut.requestCheckout(checkoutId, checkoutEmail);
+                        customer.requestCheckout(checkoutId, checkoutEmail);
                         System.out.println("Checkout request submitted. Awaiting clerk confirmation.");
                     } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
                         System.out.println("Error: " + e.getMessage());
@@ -205,10 +204,8 @@ public class HotelApp {
     // -------------------------------------------------------------------------
     // Clerk Menu
     // -------------------------------------------------------------------------
-    private static void runClerkMenu(Scanner sc, BookingManager manager, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
+    private static void runClerkMenu(Scanner sc, HotelClerk hotelClerk, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
 
-    	HotelClerk hotelClerk = new HotelClerk(manager);
-    	
         while (true) {
             System.out.println("\n=== HOTEL CLERK MENU ===");
             System.out.println("1. Book a room");
@@ -254,11 +251,11 @@ public class HotelApp {
                         break;
                     }
 
-                    Customer customer = new Customer(customerName, customerEmail);
+                    Customer customerBooking = new Customer(customerName, customerEmail);
                     DateRange dr = new DateRange(start, end);
 
                     try {
-                        Booking booking = hotelClerk.createBooking(customer, room, dr);
+                        Booking booking = hotelClerk.createBooking(customerBooking, room, dr);
                         System.out.println("Booking created with ID: " + booking.getBookingId());
                     } catch (IllegalStateException e) {
                         System.out.println("Booking has been already made on this room.");
@@ -363,14 +360,15 @@ public class HotelApp {
     }
 
     private static void printRoomTable(List<Room> rooms) {
-        System.out.printf("%-6s %-14s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
-        System.out.println("----------------------------------------------");
+        System.out.printf("%-6s %-16s %-10s %-10s %-40s%n", "ID", "Type", "Price", "Capacity", "Description");
+        System.out.println("-------------------------------------------------------------------------------------");
         for (Room r : rooms) {
-            System.out.printf("%-6d %-14s $%-9.2f %-10d%n",
+            System.out.printf("%-6d %-16s $%-9.2f %-10d %-40s%n",
                     r.getRoomId(),
                     r.getRoomType().getDisplayName(),
                     r.getPrice(),
-                    r.getRoomType().getDefaultCapacity()
+                    r.getRoomType().getDefaultCapacity(),
+                    r.getRoomType().getDescription()
             );
         }
         System.out.println();

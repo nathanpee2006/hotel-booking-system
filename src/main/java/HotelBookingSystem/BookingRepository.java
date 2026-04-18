@@ -93,7 +93,7 @@ public class BookingRepository implements IBookingRepository {
                     LocalDate end = LocalDate.parse(parts[5].trim());
                     BookingStatus status = BookingStatus.valueOf(parts[6].trim());
 
-                    Customer customer = new Customer(custName, custEmail, null);
+                    Customer customer = new Customer(custName, custEmail);
                     Room room = roomRepo.getRoomById(roomId);
 
                     if (room == null) {

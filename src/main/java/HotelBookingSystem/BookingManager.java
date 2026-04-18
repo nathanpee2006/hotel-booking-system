@@ -62,6 +62,10 @@ public class BookingManager {
             throw new IllegalArgumentException("Booking not found");
         }
 
+        if (booking.getBookingStatus() != BookingStatus.PENDING) {
+            throw new IllegalStateException("Only pending bookings can be completed.");
+        }
+
         paymentProcessor.process(booking.getAmount());
 
         booking.completeBooking();
@@ -136,7 +140,7 @@ public class BookingManager {
         bookingRepo.update(booking);
 
     }
-    
+
     public void confirmCheckout(int bookingId) {
 
         Booking booking = bookingRepo.findById(bookingId);
@@ -147,7 +151,7 @@ public class BookingManager {
 
         if (booking.getBookingStatus() != BookingStatus.CHECKOUT_REQUESTED) {
             throw new IllegalStateException(
-                "Checkout can only be confirmed for checkout requests."
+                    "Checkout can only be confirmed for checkout requests."
             );
         }
 
@@ -160,6 +164,5 @@ public class BookingManager {
 
         System.out.println("Checkout confirmed for booking ID: " + bookingId);
     }
-    
 
 }

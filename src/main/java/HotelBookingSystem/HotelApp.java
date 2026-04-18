@@ -123,6 +123,7 @@ public class HotelApp {
                  */
                 case 2:
                     System.out.print("Enter your email: ");
+                    sc.nextLine();
                     String cancelEmail = sc.nextLine().trim();
 
                     List<Booking> customerBookings = bookingRepo.findByEmail(cancelEmail);

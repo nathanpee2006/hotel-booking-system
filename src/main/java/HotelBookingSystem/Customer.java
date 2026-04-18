@@ -10,7 +10,8 @@ public class Customer extends User{
 	}
 	
 	public Customer(String name, String email) {
-		super(null, email);
+		super(name, email);
+                this.manager = null;
 	}
 
     public Booking createBooking(Customer customer, Room room, DateRange dateRange) {

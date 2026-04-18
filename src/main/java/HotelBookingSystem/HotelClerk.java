@@ -9,10 +9,10 @@ public class HotelClerk extends User{
 	        this.manager = manager;
 	    }
 	    
-	    public HotelClerk(BookingManager manager) {
-	    	super(null, null);
-	    	this.manager = manager;
-	    }
+//	    public HotelClerk(BookingManager manager) {
+//	    	super(null, null);
+//	    	this.manager = manager;
+//	    }
 
 	    public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
 	        return manager.createBooking(customer, room, dateRange);

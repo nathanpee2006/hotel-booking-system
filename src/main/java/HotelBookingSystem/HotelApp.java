@@ -15,7 +15,7 @@ public class HotelApp {
         IPaymentProcessor paymentProcessor = new PaymentProcessor();
 
         BookingManager manager = new BookingManager(roomRepo, bookingRepo, paymentProcessor);
-        
+
         Customer customer = new Customer("", "", manager);
         HotelClerk hotelClerk = new HotelClerk("", "", manager);
 
@@ -44,14 +44,14 @@ public class HotelApp {
                     break;
             }
         }
-       
+
     }
 
     // -------------------------------------------------------------------------
     // Customer Menu
     // -------------------------------------------------------------------------
     private static void runCustomerMenu(Scanner sc, Customer customer, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
-        
+
         while (true) {
             System.out.println("\n=== CUSTOMER MENU ===");
             System.out.println("1. Book a room");
@@ -96,10 +96,10 @@ public class HotelApp {
                         System.out.println("Room ID " + roomId + " not found.");
                         break;
                     }
-                    
+
                     System.out.print("Enter your name: ");
                     String customerName = sc.nextLine();
-                    
+
                     System.out.print("Enter your email: ");
                     String customerEmail = sc.nextLine();
 
@@ -123,7 +123,6 @@ public class HotelApp {
                  */
                 case 2:
                     System.out.print("Enter your email: ");
-                    sc.nextLine();
                     String cancelEmail = sc.nextLine().trim();
 
                     List<Booking> customerBookings = bookingRepo.findByEmail(cancelEmail);
@@ -205,7 +204,7 @@ public class HotelApp {
     // Clerk Menu
     // -------------------------------------------------------------------------
     private static void runClerkMenu(Scanner sc, HotelClerk hotelClerk, IRoomRepository roomRepo, IBookingRepository bookingRepo) {
-    	
+
         while (true) {
             System.out.println("\n=== HOTEL CLERK MENU ===");
             System.out.println("1. Book a room");
@@ -360,14 +359,15 @@ public class HotelApp {
     }
 
     private static void printRoomTable(List<Room> rooms) {
-        System.out.printf("%-6s %-14s %-10s %-10s%n", "ID", "Type", "Price", "Capacity");
-        System.out.println("----------------------------------------------");
+        System.out.printf("%-6s %-16s %-10s %-10s %-40s%n", "ID", "Type", "Price", "Capacity", "Description");
+        System.out.println("-------------------------------------------------------------------------------------");
         for (Room r : rooms) {
-            System.out.printf("%-6d %-14s $%-9.2f %-10d%n",
+            System.out.printf("%-6d %-16s $%-9.2f %-10d %-40s%n",
                     r.getRoomId(),
                     r.getRoomType().getDisplayName(),
                     r.getPrice(),
-                    r.getRoomType().getDefaultCapacity()
+                    r.getRoomType().getDefaultCapacity(),
+                    r.getRoomType().getDescription()
             );
         }
         System.out.println();

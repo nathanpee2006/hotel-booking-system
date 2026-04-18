@@ -1,21 +1,32 @@
 package HotelBookingSystem;
 
-public class Customer extends User {
+public class Customer extends User{
+	
+	private BookingManager manager;
+	
+	public Customer(String name, String email, BookingManager manager) {
+		super(name, email);
+		this.manager = manager;
+	}
+	
+	public Customer(String name, String email) {
+		super(null, email);
+	}
 
-    public Customer(String name, String email) {
-        super(name, email);
+    public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
+        return manager.createBooking(customer, room, dateRange);
     }
-
-    public void requestBooking() {
-
+    
+    public void cancelBooking(int bookingId, String customerEmail) {
+    	manager.cancelBooking(bookingId, customerEmail);
     }
-
-    public void requestCancellation() {
-
+    
+    public void requestCancellation(int bookingId, String customerEmail) {
+    	manager.requestCancellation(bookingId, customerEmail);
     }
-
-    public void checkOut() {
-
+    
+    public void requestCheckout(int bookingId, String customerEmail) {
+    	manager.requestCheckout(bookingId, customerEmail);
     }
 
 }

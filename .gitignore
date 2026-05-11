@@ -5,6 +5,11 @@ target/
 resources/bookings.csv
 resources/room_reservations.csv
 
+# Apache Derby (embedded database + local logs)
+HotelBookingSystemDB_Ebd/
+derby.log
+derby.properties
+
 # Compiled class file
 *.class
 

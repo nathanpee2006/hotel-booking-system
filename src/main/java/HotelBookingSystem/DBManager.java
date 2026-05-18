@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public final class DBManager {
 
-    private static final String URL = "jdbc:derby:HotelBookingSystemDB_Ebd; create=true";  
+    private static final String URL = "jdbc:derby:HotelBookingSystemDB_Ebd;create=true";
 
     Connection conn;
 
@@ -14,8 +14,22 @@ public final class DBManager {
         establishConnection();
     }
 
+    /**
+     * Connects to embedded Derby, creates tables if needed, and seeds ROOMS table data.
+     */
+    public static DBManager startup() {
+        DBManager db = new DBManager();
+        Connection connection = db.getConnection();
+        if (connection == null) {
+            throw new IllegalStateException("Could not connect to Derby: " + URL);
+        }
+        new DatabaseInitializer(connection).initialize();
+        new DataBaseStorage(connection).seed();
+        return db;
+    }
+
     public static void main(String[] args) {
-        DBManager dbManager = new DBManager();
+        DBManager dbManager = startup();
         System.out.println(dbManager.getConnection());
         try {
             System.out.println(dbManager.getConnection().getSchema());
@@ -28,7 +42,6 @@ public final class DBManager {
         return this.conn;
     }
 
-    //Establish connection
     public void establishConnection() {
         if (this.conn == null) {
             try {
@@ -40,7 +53,7 @@ public final class DBManager {
         }
     }
 
-    public void closeConnections() {
+    public void closeConnection() {
         if (conn != null) {
             try {
                 conn.close();
@@ -49,5 +62,4 @@ public final class DBManager {
             }
         }
     }
-    
 }

@@ -38,4 +38,8 @@ public abstract class User {
     public UserRole getRole() {
         return role;
     }
+
+    public boolean isAuthenticated() {
+        return userId != -1;
+    }
 }

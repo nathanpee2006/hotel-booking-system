@@ -3,21 +3,42 @@ package HotelBookingSystem;
 public class Booking implements ICancelable {
 
     private int bookingId;
-    private Customer customer;
+    private int userId;           
+    private Customer customer;    // kept for CUI backward compatibility
     private Room room;
     private DateRange dateRange;
     private BookingStatus bookingStatus;
 
-    public Booking(int newId, Customer customer, Room room, DateRange dateRange, BookingStatus pending) {
-        this.bookingId = newId;
+    // Full constructor — used by JdbcBookingRepository (has both userId and Customer)
+    public Booking(int bookingId, int userId, Customer customer, Room room, DateRange dateRange, BookingStatus bookingStatus) {
+        this.bookingId = bookingId;
+        this.userId = userId;
         this.customer = customer;
         this.room = room;
         this.dateRange = dateRange;
-        this.bookingStatus = pending;
+        this.bookingStatus = bookingStatus;
+    }
+
+    // Old constructor — kept for CUI and CSV BookingRepository backward compatibility
+    public Booking(int bookingId, Customer customer, Room room, DateRange dateRange, BookingStatus bookingStatus) {
+        this.bookingId = bookingId;
+        this.userId = (customer != null && customer.isAuthenticated()) ? customer.getUserId() : -1;
+        this.customer = customer;
+        this.room = room;
+        this.dateRange = dateRange;
+        this.bookingStatus = bookingStatus;
     }
 
     public int getBookingId() {
         return bookingId;
+    }
+
+    public void setBookingId(int bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public Customer getCustomer() {
@@ -52,9 +73,8 @@ public class Booking implements ICancelable {
     public void requestCancellation() {
         bookingStatus = BookingStatus.CANCELLATION_REQUESTED;
     }
-    
 
     public void setBookingStatus(BookingStatus status) {
-    	this.bookingStatus = status;
+        this.bookingStatus = status;
     }
 }

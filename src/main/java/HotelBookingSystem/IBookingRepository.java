@@ -4,16 +4,19 @@ import java.util.List;
 
 public interface IBookingRepository {
 
-    public void save(Booking booking);
+    /**
+     * Persists a new booking and returns the generated booking_id.
+     */
+    int save(Booking booking);
 
-    public Booking findById(int id);
+    Booking findById(int id);
 
-    public void update(Booking booking);
+    void update(Booking booking);
 
-    public int generateId();
+    List<Booking> findByStatus(BookingStatus status);
 
-    public List<Booking> findByStatus(BookingStatus status);
-    
-    public List<Booking> findByEmail(String email);
+    List<Booking> findByEmail(String email);
+
+    List<Booking> findByUserId(int userId);
 
 }

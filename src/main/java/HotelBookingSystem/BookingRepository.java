@@ -21,10 +21,19 @@ public class BookingRepository implements IBookingRepository {
     // -------------------------------------------------------------------------
     // IBookingRepository
     // -------------------------------------------------------------------------
+    /**
+     * Saves a booking and returns its ID. For the CSV path the ID is assigned
+     * by generateId() before save() is called via BookingManager, so we just
+     * echo it back.
+     */
     @Override
-    public void save(Booking booking) {
+    public int save(Booking booking) {
+        if (booking.getBookingId() == -1) {
+            booking.setBookingId(generateId());
+        }
         bookings.put(booking.getBookingId(), booking);
         saveToFile();
+        return booking.getBookingId();
     }
 
     @Override
@@ -39,11 +48,6 @@ public class BookingRepository implements IBookingRepository {
     }
 
     @Override
-    public int generateId() {
-        return bookings.keySet().stream().mapToInt(i -> i).max().orElse(0) + 1;
-    }
-
-    @Override
     public List<Booking> findByStatus(BookingStatus status) {
         return bookings.values().stream()
                 .filter(b -> b.getBookingStatus() == status)
@@ -53,8 +57,23 @@ public class BookingRepository implements IBookingRepository {
     @Override
     public List<Booking> findByEmail(String email) {
         return bookings.values().stream()
-                .filter(b -> b.getCustomer().getEmail().equalsIgnoreCase(email))
+                .filter(b -> b.getCustomer() != null
+                && b.getCustomer().getEmail().equalsIgnoreCase(email))
                 .toList();
+    }
+
+    @Override
+    public List<Booking> findByUserId(int userId) {
+        return bookings.values().stream()
+                .filter(b -> b.getUserId() == userId)
+                .toList();
+    }
+
+    // -------------------------------------------------------------------------
+    // Private — CSV path still needs ID generation
+    // -------------------------------------------------------------------------
+    private int generateId() {
+        return bookings.keySet().stream().mapToInt(i -> i).max().orElse(0) + 1;
     }
 
     // -------------------------------------------------------------------------

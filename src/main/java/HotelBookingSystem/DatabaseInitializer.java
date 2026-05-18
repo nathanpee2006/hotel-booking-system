@@ -20,6 +20,11 @@ public class DatabaseInitializer {
         createPaymentsTable();
     }
 
+    /*
+    ROOMS → BOOKINGS: one-to-many (one room, many bookings over time)
+    BOOKINGS → ROOM_RESERVATIONS (availability table): one-to-one (one booking creates one reservation block)
+     */
+    
     private void createRoomsTable() {
         String sql = """
             CREATE TABLE ROOMS (
@@ -50,7 +55,7 @@ public class DatabaseInitializer {
     private void createBookingsTable() {
         String sql = """
             CREATE TABLE BOOKINGS (
-                booking_id INT NOT NULL PRIMARY KEY,
+                booking_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 user_id INT NOT NULL,
                 room_id INT NOT NULL,
                 start_date DATE NOT NULL,

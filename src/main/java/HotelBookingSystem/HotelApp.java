@@ -8,8 +8,12 @@ public class HotelApp {
 
     public static void main(String[] args) {
 
+        
+        
         Scanner sc = new Scanner(System.in);
-
+        
+        new LogInWindow().setVisible(true);
+        
         IRoomRepository roomRepo = new RoomRepository();
         IBookingRepository bookingRepo = new BookingRepository(roomRepo);
         IPaymentProcessor paymentProcessor = new PaymentProcessor();

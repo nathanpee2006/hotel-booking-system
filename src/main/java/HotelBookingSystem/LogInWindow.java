@@ -10,10 +10,10 @@ public class LogInWindow extends javax.swing.JFrame {
     public LogInWindow() {
         initComponents();
         
-        setSize(600, 500);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         
-        headerPanel.setPreferredSize(new java.awt.Dimension(0, 80));
+        headerPanel.setPreferredSize(new java.awt.Dimension(0, 100));
         
         windowPanel.removeAll();
         
@@ -74,7 +74,7 @@ public class LogInWindow extends javax.swing.JFrame {
         headerPanel.setBackground(new java.awt.Color(102, 204, 255));
 
         WelcomeLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        WelcomeLabel.setFont(new java.awt.Font("Monospaced", 0, 24)); // NOI18N
+        WelcomeLabel.setFont(new java.awt.Font("Monospaced", 1, 24)); // NOI18N
         WelcomeLabel.setName("WelcomeLabel"); // NOI18N
         WelcomeLabel.setText("Welcome to the Hotel Booking System!"); // NOI18N
 
@@ -96,7 +96,7 @@ public class LogInWindow extends javax.swing.JFrame {
 
         windowPanel.add(headerPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 405, 70));
 
-        logInPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        logInPanel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
 
         passwordTextField.setForeground(new java.awt.Color(204, 204, 204));
         passwordTextField.setText("password...");
@@ -107,19 +107,23 @@ public class LogInWindow extends javax.swing.JFrame {
 
         customerLogInButton.setBackground(new java.awt.Color(0, 204, 255));
         customerLogInButton.setFont(new java.awt.Font("DialogInput", 0, 12)); // NOI18N
+        customerLogInButton.setForeground(new java.awt.Color(51, 51, 51));
         customerLogInButton.setText("Log In as Customer");
         customerLogInButton.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        customerLogInButton.setBorderPainted(false);
         customerLogInButton.addActionListener(this::customerLogInButtonActionPerformed);
 
         clerkLogInButton.setBackground(new java.awt.Color(0, 255, 51));
         clerkLogInButton.setFont(new java.awt.Font("DialogInput", 0, 12)); // NOI18N
         clerkLogInButton.setText("Log In as Clerk");
         clerkLogInButton.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        clerkLogInButton.setBorderPainted(false);
 
         closeAppButton.setBackground(new java.awt.Color(255, 51, 51));
         closeAppButton.setFont(new java.awt.Font("DialogInput", 0, 12)); // NOI18N
         closeAppButton.setText("Close Program");
         closeAppButton.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        closeAppButton.setBorderPainted(false);
 
         javax.swing.GroupLayout logInPanelLayout = new javax.swing.GroupLayout(logInPanel);
         logInPanel.setLayout(logInPanelLayout);

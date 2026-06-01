@@ -1,6 +1,7 @@
 package HotelBookingSystem;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -72,4 +73,27 @@ public class DataBaseStorage {
             System.out.println("Failed to seed ROOMS: " + ex.getMessage());
         }
     }
+    
+    public boolean insertUser(String name, String email, String password, String role) {
+    String sql = """
+        INSERT INTO USERS (name, email, password, role)
+        VALUES (?, ?, ?, ?)
+    """;
+
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, name);
+        stmt.setString(2, email);
+        stmt.setString(3, password);
+        stmt.setString(4, role);
+        stmt.executeUpdate();
+        System.out.println("User inserted: " + email);
+        return true;
+
+    } catch (SQLException ex) {
+        System.out.println("Failed to insert user: " + ex.getMessage());
+        return false;
+    }
+    }
+
+    
 }

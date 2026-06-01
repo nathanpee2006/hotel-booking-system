@@ -19,4 +19,5 @@ public interface IBookingRepository {
 
     List<Booking> findByUserId(int userId);
 
+    void delete(int bookingId);
 }

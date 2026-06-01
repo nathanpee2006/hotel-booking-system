@@ -1,8 +1,17 @@
 package HotelBookingSystem;
+
 public interface IPaymentProcessor {
 
-	boolean process(double amount);
+    /**
+     * Validates card details and processes a payment for the given booking.
+     * Returns a PaymentResult indicating success or failure with an error
+     * message.
+     */
+    PaymentResult process(double amount, int bookingId, CardDetails card);
 
-	boolean refund(double amount);
+    /**
+     * Records a refund for the given booking as a negative amount in PAYMENTS.
+     */
+    PaymentResult refund(double amount, int bookingId);
 
 }

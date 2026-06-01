@@ -22,6 +22,12 @@ public class Customer extends User {
         this.manager = null;
     }
 
+    // GUI path — with payment
+    public Booking createBooking(Customer customer, Room room, DateRange dateRange, CardDetails card) {
+        return manager.createBooking(customer, room, dateRange, card);
+    }
+
+    // CUI backward compat path — no payment
     public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
         return manager.createBooking(customer, room, dateRange);
     }

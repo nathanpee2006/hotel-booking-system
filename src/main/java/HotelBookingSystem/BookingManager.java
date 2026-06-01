@@ -19,8 +19,37 @@ public class BookingManager {
     }
 
     /**
-     * Creates a booking for an authenticated customer (GUI path). booking_id is
+     * Creates a booking for an authenticated customer (GUI path). Payment is
+     * validated and processed before the booking is saved. booking_id is
      * assigned by the DB and set back on the returned Booking.
+     */
+    public Booking createBooking(Customer customer, Room room, DateRange dateRange, CardDetails card) {
+        if (!checkAvailability(room, dateRange)) {
+            throw new IllegalStateException("Room is not available");
+        }
+
+        int userId = customer.getUserId();
+        Booking booking = new Booking(-1, userId, customer, room, dateRange, BookingStatus.PENDING);
+
+        // save() assigns the real DB-generated ID and sets it on the booking
+        int generatedId = bookingRepo.save(booking);
+
+        // Process payment after booking is saved so we have a real booking_id
+        PaymentResult result = paymentProcessor.process(booking.getAmount(), generatedId, card);
+        if (!result.isSuccess()) {
+            // Roll back the booking if payment fails
+            bookingRepo.delete(generatedId);
+            throw new IllegalStateException(result.getErrorMessage());
+        }
+
+        room.reserve(dateRange.getStart(), dateRange.getEnd());
+        roomRepo.updateRoom(room);
+
+        return booking;
+    }
+
+    /**
+     * Creates a booking without card details (CUI backward compat path).
      */
     public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
         if (!checkAvailability(room, dateRange)) {
@@ -30,9 +59,7 @@ public class BookingManager {
         int userId = customer.getUserId();
         Booking booking = new Booking(-1, userId, customer, room, dateRange, BookingStatus.PENDING);
 
-        // save() assigns the real DB-generated ID and sets it on the booking
         bookingRepo.save(booking);
-
         room.reserve(dateRange.getStart(), dateRange.getEnd());
         roomRepo.updateRoom(room);
 
@@ -105,7 +132,7 @@ public class BookingManager {
             throw new IllegalStateException("Only pending bookings can be completed.");
         }
 
-        paymentProcessor.process(booking.getAmount());
+        paymentProcessor.process(booking.getAmount(), bookingId, null);
 
         booking.completeBooking();
         bookingRepo.update(booking);
@@ -172,7 +199,7 @@ public class BookingManager {
             throw new IllegalStateException("Booking is not awaiting cancellation approval.");
         }
 
-        paymentProcessor.refund(booking.getAmount());
+        paymentProcessor.refund(booking.getAmount(), bookingId);
 
         booking.cancel();
         bookingRepo.update(booking);

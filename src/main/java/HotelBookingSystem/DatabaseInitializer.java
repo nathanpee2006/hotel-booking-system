@@ -24,7 +24,6 @@ public class DatabaseInitializer {
     ROOMS → BOOKINGS: one-to-many (one room, many bookings over time)
     BOOKINGS → ROOM_RESERVATIONS (availability table): one-to-one (one booking creates one reservation block)
      */
-    
     private void createRoomsTable() {
         String sql = """
             CREATE TABLE ROOMS (
@@ -85,19 +84,19 @@ public class DatabaseInitializer {
         executeCreate(sql, "ROOM_RESERVATIONS");
     }
 
-    // TBD
     private void createPaymentsTable() {
         String sql = """
             CREATE TABLE PAYMENTS (
-                payment_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                booking_id INT NOT NULL,
-                amount DECIMAL(10,2) NOT NULL,
-                method VARCHAR(20) NOT NULL,
-                status VARCHAR(20) DEFAULT 'PENDING',
-                paid_at TIMESTAMP,
+                payment_id  INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                booking_id  INT NOT NULL,
+                amount      DECIMAL(10,2) NOT NULL,
+                method      VARCHAR(20) NOT NULL,
+                card_last4  CHAR(4),
+                card_expiry CHAR(7),
+                paid_at     TIMESTAMP NOT NULL,
                 CONSTRAINT fk_payment_booking FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
             )
-        """;
+            """;
 
         executeCreate(sql, "PAYMENTS");
     }

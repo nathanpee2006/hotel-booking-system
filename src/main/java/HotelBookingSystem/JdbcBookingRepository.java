@@ -171,6 +171,18 @@ public class JdbcBookingRepository implements IBookingRepository {
         return queryBookings(sql, ps -> ps.setInt(1, userId));
     }
 
+    @Override
+    public void delete(int bookingId) {
+        String sql = "DELETE FROM BOOKINGS WHERE booking_id = ?";
+
+        try (PreparedStatement ps = requireConnection().prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to delete booking " + bookingId, ex);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Reservation management (booking-scoped)
     // -------------------------------------------------------------------------

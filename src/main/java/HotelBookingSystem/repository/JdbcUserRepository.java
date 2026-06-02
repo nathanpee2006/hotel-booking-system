@@ -13,13 +13,10 @@ import java.sql.SQLException;
 public class JdbcUserRepository implements IUserRepository {
 
     private final DBManager db;
-    private final Connection conn;
 
     public JdbcUserRepository(DBManager db) {
         this.db = db;
-        this.conn = db.getConnection(); 
     }
-
 
     @Override
     public void save(String name, String email, String hashedPassword, UserRole role) {
@@ -105,17 +102,18 @@ public class JdbcUserRepository implements IUserRepository {
         UserRole role = UserRole.valueOf(rs.getString("role"));
 
         return switch (role) {
-            case CUSTOMER -> new Customer(userId, name, email, password, null);
-            case CLERK    -> new HotelClerk(userId, name, email, password, null);
+            case CUSTOMER ->
+                new Customer(userId, name, email);
+            case CLERK ->
+                new HotelClerk(userId, name, email);
         };
     }
 
     private Connection requireConnection() {
-        if (conn != null) {
-            return conn;
+        Connection conn = db.getConnection();
+        if (conn == null) {
+            throw new IllegalStateException("No database connection");
         }
-        throw new IllegalStateException("No database available");
+        return conn;
     }
-
-
 }

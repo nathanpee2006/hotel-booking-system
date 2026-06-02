@@ -1,11 +1,8 @@
 package HotelBookingSystem.repository;
 
-import HotelBookingSystem.model.Booking;
-import HotelBookingSystem.model.BookingStatus;
-import HotelBookingSystem.model.Customer;
 import HotelBookingSystem.db.DBManager;
-import HotelBookingSystem.model.DateRange;
-import HotelBookingSystem.model.Room;
+import HotelBookingSystem.model.*;
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -31,7 +28,7 @@ public class JdbcBookingRepository implements IBookingRepository {
     // -------------------------------------------------------------------------
     /**
      * Inserts a booking and returns the DB-generated booking_id. Also inserts
-     * the corresponding ROOM_RESERVATIONS row.
+     * the corresponding ROOM_RESERVATIONS row in the same transaction.
      */
     @Override
     public int save(Booking booking) {
@@ -63,9 +60,7 @@ public class JdbcBookingRepository implements IBookingRepository {
                 }
             }
 
-            // Update the in-memory booking with the real DB-assigned ID
             booking.setBookingId(generatedId);
-
             insertReservation(conn, booking);
 
             conn.commit();
@@ -82,12 +77,8 @@ public class JdbcBookingRepository implements IBookingRepository {
     @Override
     public Booking findById(int id) {
         String sql = """
-            SELECT b.booking_id, b.user_id, b.room_id,
-                   b.start_date, b.end_date, b.booking_status,
-                   u.name AS customer_name, u.email AS customer_email
-            FROM BOOKINGS b
-            JOIN USERS u ON b.user_id = u.user_id
-            WHERE b.booking_id = ?
+            SELECT booking_id, user_id, room_id, start_date, end_date, booking_status
+            FROM BOOKINGS WHERE booking_id = ?
             """;
 
         try (PreparedStatement ps = requireConnection().prepareStatement(sql)) {
@@ -133,51 +124,6 @@ public class JdbcBookingRepository implements IBookingRepository {
     }
 
     @Override
-    public List<Booking> findByStatus(BookingStatus status) {
-        String sql = """
-            SELECT b.booking_id, b.user_id, b.room_id,
-                   b.start_date, b.end_date, b.booking_status,
-                   u.name AS customer_name, u.email AS customer_email
-            FROM BOOKINGS b
-            JOIN USERS u ON b.user_id = u.user_id
-            WHERE b.booking_status = ?
-            ORDER BY b.booking_id
-            """;
-
-        return queryBookings(sql, ps -> ps.setString(1, status.name()));
-    }
-
-    @Override
-    public List<Booking> findByEmail(String email) {
-        String sql = """
-            SELECT b.booking_id, b.user_id, b.room_id,
-                   b.start_date, b.end_date, b.booking_status,
-                   u.name AS customer_name, u.email AS customer_email
-            FROM BOOKINGS b
-            JOIN USERS u ON b.user_id = u.user_id
-            WHERE LOWER(u.email) = LOWER(?)
-            ORDER BY b.booking_id
-            """;
-
-        return queryBookings(sql, ps -> ps.setString(1, email));
-    }
-
-    @Override
-    public List<Booking> findByUserId(int userId) {
-        String sql = """
-            SELECT b.booking_id, b.user_id, b.room_id,
-                   b.start_date, b.end_date, b.booking_status,
-                   u.name AS customer_name, u.email AS customer_email
-            FROM BOOKINGS b
-            JOIN USERS u ON b.user_id = u.user_id
-            WHERE b.user_id = ?
-            ORDER BY b.booking_id
-            """;
-
-        return queryBookings(sql, ps -> ps.setInt(1, userId));
-    }
-
-    @Override
     public void delete(int bookingId) {
         String sql = "DELETE FROM BOOKINGS WHERE booking_id = ?";
 
@@ -189,13 +135,31 @@ public class JdbcBookingRepository implements IBookingRepository {
         }
     }
 
+    @Override
+    public List<Booking> findByStatus(BookingStatus status) {
+        String sql = """
+            SELECT booking_id, user_id, room_id, start_date, end_date, booking_status
+            FROM BOOKINGS WHERE booking_status = ?
+            ORDER BY booking_id
+            """;
+
+        return queryBookings(sql, ps -> ps.setString(1, status.name()));
+    }
+
+    @Override
+    public List<Booking> findByUserId(int userId) {
+        String sql = """
+            SELECT booking_id, user_id, room_id, start_date, end_date, booking_status
+            FROM BOOKINGS WHERE user_id = ?
+            ORDER BY booking_id
+            """;
+
+        return queryBookings(sql, ps -> ps.setInt(1, userId));
+    }
+
     // -------------------------------------------------------------------------
     // Reservation management (booking-scoped)
     // -------------------------------------------------------------------------
-    /**
-     * Inserts a ROOM_RESERVATIONS row for the given booking. Called within the
-     * same transaction as save().
-     */
     private void insertReservation(Connection conn, Booking booking) throws SQLException {
         String sql = """
             INSERT INTO ROOM_RESERVATIONS (room_id, booking_id, start_date, end_date)
@@ -212,8 +176,8 @@ public class JdbcBookingRepository implements IBookingRepository {
     }
 
     /**
-     * Deletes the ROOM_RESERVATIONS row for the given booking. Called by
-     * BookingManager when a booking is cancelled or checked out.
+     * Deletes the ROOM_RESERVATIONS row for a booking. Called by BookingManager
+     * on cancel, approve cancellation, and confirm checkout.
      */
     public void deleteReservation(int bookingId) {
         String sql = "DELETE FROM ROOM_RESERVATIONS WHERE booking_id = ?";
@@ -236,7 +200,7 @@ public class JdbcBookingRepository implements IBookingRepository {
     }
 
     private List<Booking> queryBookings(String sql, PreparedStatementBinder binder) {
-        List<Booking> bookings = new ArrayList<>();
+        List<Booking> result = new ArrayList<>();
 
         try (PreparedStatement ps = requireConnection().prepareStatement(sql)) {
             binder.bind(ps);
@@ -244,7 +208,7 @@ public class JdbcBookingRepository implements IBookingRepository {
                 while (rs.next()) {
                     Booking booking = mapRow(rs);
                     if (booking != null) {
-                        bookings.add(booking);
+                        result.add(booking);
                     }
                 }
             }
@@ -252,14 +216,9 @@ public class JdbcBookingRepository implements IBookingRepository {
             throw new RuntimeException("Failed to query bookings", ex);
         }
 
-        return bookings;
+        return result;
     }
 
-    /**
-     * Maps a result row to a Booking. JOINs customer_name and customer_email
-     * from USERS so getCustomer() still works for the CUI without a second
-     * query.
-     */
     private Booking mapRow(ResultSet rs) throws SQLException {
         int bookingId = rs.getInt("booking_id");
         int userId = rs.getInt("user_id");
@@ -267,8 +226,6 @@ public class JdbcBookingRepository implements IBookingRepository {
         LocalDate start = rs.getDate("start_date").toLocalDate();
         LocalDate end = rs.getDate("end_date").toLocalDate();
         BookingStatus status = BookingStatus.valueOf(rs.getString("booking_status"));
-        String customerName = rs.getString("customer_name");
-        String customerEmail = rs.getString("customer_email");
 
         Room room = roomRepo.getRoomById(roomId);
         if (room == null) {
@@ -276,11 +233,7 @@ public class JdbcBookingRepository implements IBookingRepository {
             return null;
         }
 
-        // Lightweight Customer — no manager attached, for display purposes only
-        Customer customer = new Customer(customerName, customerEmail);
-        DateRange dateRange = new DateRange(start, end);
-
-        return new Booking(bookingId, userId, customer, room, dateRange, status);
+        return new Booking(bookingId, userId, room, new DateRange(start, end), status);
     }
 
     private void rollback(Connection conn) {

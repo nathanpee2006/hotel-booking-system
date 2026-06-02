@@ -1,29 +1,33 @@
 package HotelBookingSystem.model;
 
-public class Booking implements ICancelable {
+public class Booking {
 
     private int bookingId;
-    private int userId;           
+    private int userId;
     private Customer customer;    // kept for CUI backward compatibility
     private Room room;
     private DateRange dateRange;
     private BookingStatus bookingStatus;
 
-    // Full constructor — used by JdbcBookingRepository (has both userId and Customer)
-    public Booking(int bookingId, int userId, Customer customer, Room room, DateRange dateRange, BookingStatus bookingStatus) {
-        this.bookingId = bookingId;
+    /**
+     * Constructor for creating a new booking. bookingId defaults to 0 — DB
+     * assigns the real ID after save().
+     */
+    public Booking(int userId, Room room, DateRange dateRange, BookingStatus bookingStatus) {
+        this.bookingId = 0;
         this.userId = userId;
-        this.customer = customer;
         this.room = room;
         this.dateRange = dateRange;
         this.bookingStatus = bookingStatus;
     }
 
-    // Old constructor — kept for CUI and CSV BookingRepository backward compatibility
-    public Booking(int bookingId, Customer customer, Room room, DateRange dateRange, BookingStatus bookingStatus) {
+    /**
+     * Constructor for loading an existing booking from the DB. bookingId is
+     * already known.
+     */
+    public Booking(int bookingId, int userId, Room room, DateRange dateRange, BookingStatus bookingStatus) {
         this.bookingId = bookingId;
-        this.userId = (customer != null && customer.isAuthenticated()) ? customer.getUserId() : -1;
-        this.customer = customer;
+        this.userId = userId;
         this.room = room;
         this.dateRange = dateRange;
         this.bookingStatus = bookingStatus;
@@ -59,19 +63,6 @@ public class Booking implements ICancelable {
 
     public double getAmount() {
         return room.getPrice();
-    }
-
-    @Override
-    public void cancel() {
-        bookingStatus = BookingStatus.CANCELLED;
-    }
-
-    public void completeBooking() {
-        bookingStatus = BookingStatus.COMPLETED;
-    }
-
-    public void requestCancellation() {
-        bookingStatus = BookingStatus.CANCELLATION_REQUESTED;
     }
 
     public void setBookingStatus(BookingStatus status) {

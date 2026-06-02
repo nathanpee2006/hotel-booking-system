@@ -1,8 +1,8 @@
 package HotelBookingSystem.app;
 
 import HotelBookingSystem.db.DBManager;
-import HotelBookingSystem.repository.JdbcUserRepository;
-import HotelBookingSystem.service.AuthService;
+import HotelBookingSystem.repository.*;
+import HotelBookingSystem.service.*;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
 
@@ -17,19 +17,25 @@ public class MainWindow extends javax.swing.JFrame {
     public GUICommands gui;
     public AuthService authService;
     public DBManager db;
+    public BookingManager manager;
 
     public MainWindow() {
 
         initComponents();
-        db = new DBManager();
-        authService = new AuthService(new JdbcUserRepository(db));
+        db = DBManager.startup();
+        IRoomRepository roomRepo = new JdbcRoomRepository(db);
+        IBookingRepository bookingRepo = new JdbcBookingRepository(roomRepo, db);
+        IUserRepository userRepo = new JdbcUserRepository(db);
+        IPaymentProcessor payment = new PaymentProcessor(db);
+        manager = new BookingManager(roomRepo, bookingRepo, payment);
+        authService = new AuthService(userRepo, manager);
 
         startUpPanel = new StartupPanel();
         logInPanel = new LoginPanel();
         registerPanel = new RegisterPanel();
         customerPanel = new CustomerPanel();
 
-        gui = new GUICommands(this, authService, db);
+        gui = new GUICommands(this, authService, db, manager, roomRepo);
 
         startUpPanel.setGUI(gui);
         logInPanel.setGUI(gui);

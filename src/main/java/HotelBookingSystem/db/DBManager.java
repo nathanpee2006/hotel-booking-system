@@ -21,43 +21,40 @@ import java.util.List;
 
 public final class DBManager {
 
-    private static final String URL = "jdbc:derby:HotelBookingSystemDB_Ebd;create=true";
-
-    Connection conn;
+    private static final String DEFAULT_URL = "jdbc:derby:HotelBookingSystemDB_Ebd;create=true";
+    private final String url; // for tests
+    private Connection conn;
 
     public DBManager() {
+        this.url = DEFAULT_URL;
         establishConnection();
-        
-         if (conn != null) {
-        new DatabaseInitializer(conn).initialize();
-        new DataBaseStorage(conn).seed();
-        
-        }
-         
     }
 
-    /**
-     * Connects to embedded Derby, creates tables if needed, and seeds ROOMS table data.
-     */
+    public DBManager(String url) {
+        this.url = url;
+        establishConnection();
+    }
+
     public static DBManager startup() {
         DBManager db = new DBManager();
         Connection connection = db.getConnection();
         if (connection == null) {
-            throw new IllegalStateException("Could not connect to Derby: " + URL);
+            throw new IllegalStateException("Could not connect to Derby: " + DEFAULT_URL);
         }
         new DatabaseInitializer(connection).initialize();
         new DataBaseStorage(connection).seed();
         return db;
     }
 
-    public static void main(String[] args) {
-        DBManager dbManager = startup();
-        System.out.println(dbManager.getConnection());
-        try {
-            System.out.println(dbManager.getConnection().getSchema());
-        } catch (SQLException ex) {
-            System.getLogger(DBManager.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+    public static DBManager startup(String url) {
+        DBManager db = new DBManager(url);
+        Connection connection = db.getConnection();
+        if (connection == null) {
+            throw new IllegalStateException("Could not connect to Derby: " + url);
         }
+        new DatabaseInitializer(connection).initialize();
+        new DataBaseStorage(connection).seed();
+        return db;
     }
 
     public Connection getConnection() {
@@ -67,28 +64,29 @@ public final class DBManager {
     public void establishConnection() {
         if (this.conn == null) {
             try {
-                conn = DriverManager.getConnection(URL);
-                System.out.println(URL + " Get Connected Successfully ....");
+                conn = DriverManager.getConnection(url);
+                System.out.println(url + " connected successfully.");
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
         }
     }
 
-    public void closeConnection() {
+    public void closeConnections() {
         if (conn != null) {
             try {
                 conn.close();
+                conn = null;
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
         }
     }
-    
+
     public void saveBooking(Booking booking) throws SQLException {
-    Connection conn = getConnection();
-    String sql = "INSERT INTO BOOKINGS (user_id, room_id, start_date, end_date, booking_status) VALUES (?, ?, ?, ?, ?)";
-    PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection conn = getConnection();
+        String sql = "INSERT INTO BOOKINGS (user_id, room_id, start_date, end_date, booking_status) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
 
         stmt.setInt(1, booking.getUserId());
         stmt.setInt(2, booking.getRoom().getRoomId());
@@ -98,43 +96,43 @@ public final class DBManager {
 
         stmt.executeUpdate();
     }
-    
+
     public Room findRoomById(int roomId) {
-    String sql = "SELECT room_id, room_type, price, room_status FROM ROOMS WHERE room_id = ?";
+        String sql = "SELECT room_id, room_type, price, room_status FROM ROOMS WHERE room_id = ?";
 
-    Connection conn = getConnection();
-    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.setInt(1, roomId);
-        ResultSet rs = stmt.executeQuery();
+            stmt.setInt(1, roomId);
+            ResultSet rs = stmt.executeQuery();
 
-        if (rs.next()) {
+            if (rs.next()) {
 
-            int id = rs.getInt("room_id");
-            String typeStr = rs.getString("room_type");
-            double price = rs.getDouble("price");
-            String statusStr = rs.getString("room_status");
+                int id = rs.getInt("room_id");
+                String typeStr = rs.getString("room_type");
+                double price = rs.getDouble("price");
+                String statusStr = rs.getString("room_status");
 
-            // Convert DB strings → enums
-            RoomType type = RoomType.valueOf(typeStr.toUpperCase());
-            RoomStatus status = RoomStatus.valueOf(statusStr.toUpperCase());
+                // Convert DB strings → enums
+                RoomType type = RoomType.valueOf(typeStr.toUpperCase());
+                RoomStatus status = RoomStatus.valueOf(statusStr.toUpperCase());
 
-            // Create Room object
-            Room room = new Room(id, type, price);
+                // Create Room object
+                Room room = new Room(id, type, price);
 
-            // Apply status AFTER construction
-            room.setStatus(status);
+                // Apply status AFTER construction
+                room.setStatus(status);
 
-            return room;
-        }
+                return room;
+            }
 
-    }   catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
-    
+
     public void updateRoomStatus(int roomId, RoomStatus newStatus) {
         String sql = "UPDATE ROOMS SET room_status = ? WHERE room_id = ?";
 
@@ -152,36 +150,33 @@ public final class DBManager {
     }
 
     public List<Room> findAvailableRooms() {
-    List<Room> rooms = new ArrayList<>();
-    String sql = "SELECT room_id, room_type, price, room_status FROM ROOMS WHERE room_status = 'AVAILABLE'";
+        List<Room> rooms = new ArrayList<>();
+        String sql = "SELECT room_id, room_type, price, room_status FROM ROOMS WHERE room_status = 'AVAILABLE'";
 
-    Connection conn = getConnection();
-    try (PreparedStatement stmt = conn.prepareStatement(sql);
-         ResultSet rs = stmt.executeQuery()) {
+        Connection conn = getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
-        while (rs.next()) {
-            int id = rs.getInt("room_id");
-            String typeStr = rs.getString("room_type");
-            double price = rs.getDouble("price");
-            String statusStr = rs.getString("room_status");
+            while (rs.next()) {
+                int id = rs.getInt("room_id");
+                String typeStr = rs.getString("room_type");
+                double price = rs.getDouble("price");
+                String statusStr = rs.getString("room_status");
 
-            // Convert DB strings → enums
-            RoomType type = RoomType.valueOf(typeStr.toUpperCase());
-            RoomStatus status = RoomStatus.valueOf(statusStr.toUpperCase());
+                // Convert DB strings → enums
+                RoomType type = RoomType.valueOf(typeStr.toUpperCase());
+                RoomStatus status = RoomStatus.valueOf(statusStr.toUpperCase());
 
-            Room room = new Room(id, type, price);
-            room.setStatus(status);
+                Room room = new Room(id, type, price);
+                room.setStatus(status);
 
-            rooms.add(room);
-        }
+                rooms.add(room);
+            }
 
-    }   catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return rooms;
     }
-
-
 
 }

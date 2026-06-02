@@ -1,10 +1,7 @@
 package HotelBookingSystem.service;
-
-import HotelBookingSystem.model.Customer;
-import HotelBookingSystem.model.HotelClerk;
+ 
+import HotelBookingSystem.model.*;
 import HotelBookingSystem.repository.IUserRepository;
-import HotelBookingSystem.model.User;
-import HotelBookingSystem.model.UserRole;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthService {
@@ -15,11 +12,6 @@ public class AuthService {
     public AuthService(IUserRepository userRepo, BookingManager manager) {
         this.userRepo = userRepo;
         this.manager = manager;
-    }
-    
-    public AuthService(IUserRepository userRepo) {
-        this.userRepo = userRepo;
-        this.manager = null;
     }
 
     /**
@@ -52,9 +44,9 @@ public class AuthService {
         // Attach BookingManager now that the user is authenticated
         return switch (user.getRole()) {
             case CUSTOMER ->
-                new Customer(user.getUserId(), user.getName(), user.getEmail(), user.getPasswrod(), manager);
+                new Customer(user.getUserId(), user.getName(), user.getEmail(), manager);
             case CLERK ->
-                new HotelClerk(user.getUserId(), user.getName(), user.getEmail(), user.getPasswrod(), manager);
+                new HotelClerk(user.getUserId(), user.getName(), user.getEmail(), manager);
         };
     }
 

@@ -17,8 +17,6 @@ public interface IBookingRepository {
 
     List<Booking> findByStatus(BookingStatus status);
 
-    List<Booking> findByEmail(String email);
-
     List<Booking> findByUserId(int userId);
 
     void delete(int bookingId);

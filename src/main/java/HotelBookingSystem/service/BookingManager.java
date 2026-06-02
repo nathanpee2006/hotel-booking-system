@@ -3,28 +3,18 @@ package HotelBookingSystem.service;
 import HotelBookingSystem.model.Booking;
 import HotelBookingSystem.model.BookingStatus;
 import HotelBookingSystem.model.CardDetails;
-import HotelBookingSystem.model.Customer;
 import HotelBookingSystem.model.DateRange;
 import HotelBookingSystem.repository.IBookingRepository;
 import HotelBookingSystem.repository.IRoomRepository;
 import HotelBookingSystem.repository.JdbcBookingRepository;
 import HotelBookingSystem.model.PaymentResult;
 import HotelBookingSystem.model.Room;
-import java.sql.Connection;
 
 public class BookingManager {
 
     private final IRoomRepository roomRepo;
     private final IBookingRepository bookingRepo;
     private final IPaymentProcessor paymentProcessor;
-    private final Connection conn;
-
-    public BookingManager(Connection conn) {
-        this.conn = conn;
-        this.roomRepo = null;
-        this.bookingRepo = null;
-        this.paymentProcessor = null;
-    }
 
     public BookingManager(IRoomRepository roomRepo,
             IBookingRepository bookingRepo,
@@ -32,7 +22,6 @@ public class BookingManager {
         this.roomRepo = roomRepo;
         this.bookingRepo = bookingRepo;
         this.paymentProcessor = paymentProcessor;
-        this.conn = null;
     }
 
     public boolean checkAvailability(Room room, DateRange dateRange) {
@@ -40,47 +29,24 @@ public class BookingManager {
     }
 
     /**
-     * Creates a booking for an authenticated customer (GUI path). Payment is
+     * Creates a booking for an authenticated customer. Payment is
      * validated and processed before the booking is saved. booking_id is
      * assigned by the DB and set back on the returned Booking.
      */
-    public Booking createBooking(Customer customer, Room room, DateRange dateRange, CardDetails card) {
+    public Booking createBooking(int userId, Room room, DateRange dateRange, CardDetails card) {
         if (!checkAvailability(room, dateRange)) {
-            throw new IllegalStateException("Room is not available");
+            throw new IllegalStateException("Room is not available.");
         }
 
-        int userId = customer.getUserId();
-        Booking booking = new Booking(-1, userId, customer, room, dateRange, BookingStatus.PENDING);
-
-        // save() assigns the real DB-generated ID and sets it on the booking
+        Booking booking = new Booking(userId, room, dateRange, BookingStatus.PENDING);
         int generatedId = bookingRepo.save(booking);
 
-        // Process payment after booking is saved so we have a real booking_id
         PaymentResult result = paymentProcessor.process(booking.getAmount(), generatedId, card);
         if (!result.isSuccess()) {
-            // Roll back the booking if payment fails
             bookingRepo.delete(generatedId);
             throw new IllegalStateException(result.getErrorMessage());
         }
 
-        room.reserve(dateRange.getStart(), dateRange.getEnd());
-        roomRepo.updateRoom(room);
-
-        return booking;
-    }
-
-    /**
-     * Creates a booking without card details (CUI backward compat path).
-     */
-    public Booking createBooking(Customer customer, Room room, DateRange dateRange) {
-        if (!checkAvailability(room, dateRange)) {
-            throw new IllegalStateException("Room is not available");
-        }
-
-        int userId = customer.getUserId();
-        Booking booking = new Booking(-1, userId, customer, room, dateRange, BookingStatus.PENDING);
-
-        bookingRepo.save(booking);
         room.reserve(dateRange.getStart(), dateRange.getEnd());
         roomRepo.updateRoom(room);
 
@@ -105,35 +71,7 @@ public class BookingManager {
             throw new IllegalStateException("Only pending bookings can be cancelled this way.");
         }
 
-        booking.cancel();
-        bookingRepo.update(booking);
-
-        deleteReservation(bookingId);
-
-        booking.getRoom().release(booking.getDateRange().getStart(), booking.getDateRange().getEnd());
-        roomRepo.updateRoom(booking.getRoom());
-    }
-
-    /**
-     * Cancels a PENDING booking. Verified by email (CUI backward compat path).
-     */
-    public void cancelBooking(int bookingId, String customerEmail) {
-        Booking booking = bookingRepo.findById(bookingId);
-
-        if (booking == null) {
-            throw new IllegalArgumentException("Booking not found.");
-        }
-
-        if (booking.getCustomer() == null
-                || !booking.getCustomer().getEmail().equalsIgnoreCase(customerEmail)) {
-            throw new SecurityException("You are not authorised to cancel this booking.");
-        }
-
-        if (booking.getBookingStatus() != BookingStatus.PENDING) {
-            throw new IllegalStateException("Only pending bookings can be cancelled this way.");
-        }
-
-        booking.cancel();
+        booking.setBookingStatus(BookingStatus.CANCELLED);
         bookingRepo.update(booking);
 
         deleteReservation(bookingId);
@@ -155,7 +93,7 @@ public class BookingManager {
 
         paymentProcessor.process(booking.getAmount(), bookingId, null);
 
-        booking.completeBooking();
+        booking.setBookingStatus(BookingStatus.COMPLETED);
         bookingRepo.update(booking);
 
         booking.getRoom().occupy();
@@ -181,31 +119,7 @@ public class BookingManager {
             throw new IllegalStateException("Only completed bookings can be submitted for cancellation request.");
         }
 
-        booking.requestCancellation();
-        bookingRepo.update(booking);
-    }
-
-    /**
-     * Requests cancellation of a COMPLETED booking. Verified by email (CUI
-     * backward compat path).
-     */
-    public void requestCancellation(int bookingId, String customerEmail) {
-        Booking booking = bookingRepo.findById(bookingId);
-
-        if (booking == null) {
-            throw new IllegalArgumentException("Booking not found.");
-        }
-
-        if (booking.getCustomer() == null
-                || !booking.getCustomer().getEmail().equalsIgnoreCase(customerEmail)) {
-            throw new SecurityException("You are not authorised to request cancellation for this booking.");
-        }
-
-        if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
-            throw new IllegalStateException("Only completed bookings can be submitted for cancellation request.");
-        }
-
-        booking.requestCancellation();
+        booking.setBookingStatus(BookingStatus.CANCELLATION_REQUESTED);
         bookingRepo.update(booking);
     }
 
@@ -222,7 +136,7 @@ public class BookingManager {
 
         paymentProcessor.refund(booking.getAmount(), bookingId);
 
-        booking.cancel();
+        booking.setBookingStatus(BookingStatus.CANCELLED);
         bookingRepo.update(booking);
 
         deleteReservation(bookingId);
@@ -243,38 +157,6 @@ public class BookingManager {
 
         if (booking.getUserId() != userId) {
             throw new SecurityException("You can only check out your own booking.");
-        }
-
-        if (booking.getBookingStatus() == BookingStatus.PENDING) {
-            throw new IllegalStateException("This booking is currently pending.");
-        }
-
-        if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
-            throw new IllegalStateException("Checkout is only allowed for completed bookings.");
-        }
-
-        booking.setBookingStatus(BookingStatus.CHECKOUT_REQUESTED);
-        bookingRepo.update(booking);
-    }
-
-    /**
-     * Requests checkout of a COMPLETED booking. Verified by email (CUI backward
-     * compat path).
-     */
-    public void requestCheckout(int bookingId, String customerEmail) {
-        Booking booking = bookingRepo.findById(bookingId);
-
-        if (booking == null) {
-            throw new IllegalArgumentException("Booking not found.");
-        }
-
-        if (booking.getCustomer() == null
-                || !booking.getCustomer().getEmail().equalsIgnoreCase(customerEmail)) {
-            throw new SecurityException("You can only check out your own booking.");
-        }
-
-        if (booking.getBookingStatus() == BookingStatus.PENDING) {
-            throw new IllegalStateException("This booking is currently pending.");
         }
 
         if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
@@ -304,8 +186,6 @@ public class BookingManager {
         Room room = booking.getRoom();
         room.release(booking.getDateRange().getStart(), booking.getDateRange().getEnd());
         roomRepo.updateRoom(room);
-
-        System.out.println("Checkout confirmed for booking ID: " + bookingId);
     }
 
     // -------------------------------------------------------------------------

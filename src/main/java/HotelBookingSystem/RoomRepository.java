@@ -1,5 +1,9 @@
 package HotelBookingSystem;
 
+import HotelBookingSystem.model.RoomStatus;
+import HotelBookingSystem.model.Room;
+import HotelBookingSystem.model.RoomType;
+import HotelBookingSystem.repository.IRoomRepository;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;

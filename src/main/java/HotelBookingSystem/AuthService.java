@@ -11,6 +11,11 @@ public class AuthService {
         this.userRepo = userRepo;
         this.manager = manager;
     }
+    
+    public AuthService(IUserRepository userRepo) {
+        this.userRepo = userRepo;
+        this.manager = null;
+    }
 
     /**
      * Registers a new user. Throws if the email is already taken.
@@ -42,9 +47,9 @@ public class AuthService {
         // Attach BookingManager now that the user is authenticated
         return switch (user.getRole()) {
             case CUSTOMER ->
-                new Customer(user.getUserId(), user.getName(), user.getEmail(), manager);
+                new Customer(user.getUserId(), user.getName(), user.getEmail(), user.getPasswrod(), manager);
             case CLERK ->
-                new HotelClerk(user.getUserId(), user.getName(), user.getEmail(), manager);
+                new HotelClerk(user.getUserId(), user.getName(), user.getEmail(), user.getPasswrod(), manager);
         };
     }
 

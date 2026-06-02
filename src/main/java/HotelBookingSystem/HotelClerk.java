@@ -5,8 +5,8 @@ public class HotelClerk extends User {
     private final BookingManager manager;
 
     // Authenticated clerk (from DB login)
-    public HotelClerk(int userId, String name, String email, BookingManager manager) {
-        super(userId, name, email, UserRole.CLERK);
+    public HotelClerk(int userId, String name, String email, String password, BookingManager manager) {
+        super(userId, name, email, UserRole.CLERK, password);
         this.manager = manager;
     }
 

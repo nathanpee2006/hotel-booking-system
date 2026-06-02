@@ -1,10 +1,20 @@
 package HotelBookingSystem;
 
+import java.sql.Connection;
+
 public class BookingManager {
 
     private final IRoomRepository roomRepo;
     private final IBookingRepository bookingRepo;
     private final IPaymentProcessor paymentProcessor;
+    private final Connection conn;
+
+    public BookingManager(Connection conn) {
+        this.conn = conn;
+        this.roomRepo = null;
+        this.bookingRepo = null;
+        this.paymentProcessor = null;
+    }
 
     public BookingManager(IRoomRepository roomRepo,
             IBookingRepository bookingRepo,
@@ -12,6 +22,7 @@ public class BookingManager {
         this.roomRepo = roomRepo;
         this.bookingRepo = bookingRepo;
         this.paymentProcessor = paymentProcessor;
+        this.conn = null;
     }
 
     public boolean checkAvailability(Room room, DateRange dateRange) {

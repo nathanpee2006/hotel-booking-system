@@ -5,8 +5,8 @@ public class Customer extends User {
     private BookingManager manager;
 
     // Authenticated customer (GUI path)
-    public Customer(int userId, String name, String email, BookingManager manager) {
-        super(userId, name, email, UserRole.CUSTOMER);
+    public Customer(int userId, String name, String email, String password, BookingManager manager) {
+        super(userId, name, email, UserRole.CUSTOMER, password);
         this.manager = manager;
     }
 

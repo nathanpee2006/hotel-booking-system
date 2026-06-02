@@ -8,10 +8,13 @@ import java.sql.SQLException;
 public class JdbcUserRepository implements IUserRepository {
 
     private final DBManager db;
+    private final Connection conn;
 
     public JdbcUserRepository(DBManager db) {
         this.db = db;
+        this.conn = db.getConnection(); 
     }
+
 
     @Override
     public void save(String name, String email, String hashedPassword, UserRole role) {
@@ -93,20 +96,21 @@ public class JdbcUserRepository implements IUserRepository {
         int userId = rs.getInt("user_id");
         String name = rs.getString("name");
         String email = rs.getString("email");
+        String password = rs.getString("password");
         UserRole role = UserRole.valueOf(rs.getString("role"));
 
         return switch (role) {
-            case CUSTOMER -> new Customer(userId, name, email, null);
-            case CLERK    -> new HotelClerk(userId, name, email, null);
+            case CUSTOMER -> new Customer(userId, name, email, password, null);
+            case CLERK    -> new HotelClerk(userId, name, email, password, null);
         };
     }
 
     private Connection requireConnection() {
-        Connection conn = db.getConnection();
-        if (conn == null) {
-            throw new IllegalStateException("No database connection");
+        if (conn != null) {
+            return conn;
         }
-        return conn;
+        throw new IllegalStateException("No database available");
     }
+
 
 }

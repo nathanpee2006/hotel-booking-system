@@ -248,6 +248,7 @@ public class ClerkPanel extends javax.swing.JPanel {
         closeAppButton.setText("Close Program");
         closeAppButton.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         closeAppButton.setBorderPainted(false);
+        closeAppButton.addActionListener(this::closeAppButtonActionPerformed);
 
         checkInBookingsButton.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         checkInBookingsButton.setText("Check In Requests"); // NOI18N
@@ -339,6 +340,12 @@ public class ClerkPanel extends javax.swing.JPanel {
         gui.loadCheckoutRequests(this);
         
     }//GEN-LAST:event_checkoutRequestButtonActionPerformed
+
+    private void closeAppButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAppButtonActionPerformed
+
+        gui.closeProgram();
+
+    }//GEN-LAST:event_closeAppButtonActionPerformed
 
     
     public void showRoomDetails() {

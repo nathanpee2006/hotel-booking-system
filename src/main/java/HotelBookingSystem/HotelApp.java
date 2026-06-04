@@ -9,6 +9,5 @@ public class HotelApp {
         MainWindow mainWindow = new MainWindow();
         mainWindow.setVisible(true);
         
-    
     }
 }

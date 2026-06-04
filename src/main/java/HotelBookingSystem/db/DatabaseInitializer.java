@@ -43,7 +43,7 @@ public class DatabaseInitializer {
                 user_id  INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 name     VARCHAR(120) NOT NULL,
                 email    VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
+                password VARCHAR(255),
                 role     VARCHAR(10)  NOT NULL
             )
             """;

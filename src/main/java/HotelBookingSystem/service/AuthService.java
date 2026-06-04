@@ -1,5 +1,5 @@
 package HotelBookingSystem.service;
- 
+
 import HotelBookingSystem.model.*;
 import HotelBookingSystem.repository.IUserRepository;
 import org.mindrot.jbcrypt.BCrypt;
@@ -24,6 +24,15 @@ public class AuthService {
 
         String hashed = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
         userRepo.save(name, email, hashed, role);
+    }
+
+    public User createWalkInCustomer(String name, String email) {
+        if (userRepo.findByEmail(email) != null) {
+            throw new IllegalArgumentException("An account with this email already exists.");
+        }
+
+        userRepo.save(name, email, null, UserRole.CUSTOMER);
+        return userRepo.findByEmail(email);
     }
 
     /**

@@ -51,7 +51,7 @@
                   <Component id="roomContentPanel" min="-2" pref="707" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Component id="headerPanel1" alignment="0" pref="0" max="32767" attributes="0"/>
+              <Component id="headerPanel1" alignment="0" pref="900" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

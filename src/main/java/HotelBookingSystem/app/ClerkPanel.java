@@ -1,4 +1,3 @@
-
 package HotelBookingSystem.app;
 
 import HotelBookingSystem.model.User;
@@ -53,13 +52,10 @@ public class ClerkPanel extends javax.swing.JPanel {
     public JButton confirmCheckoutButton;
     public JButton backToCheckoutRequestListButton;
 
-    
     public ClerkPanel() {
-        
+
         initComponents();
-        
-        
-        
+
         // =========================
         // PENDING BOOKINGS PANEL
         // =========================
@@ -86,12 +82,11 @@ public class ClerkPanel extends javax.swing.JPanel {
         pendingDetailsPanel.add(backToPendingListButton);
 
         roomContentPanel.add(pendingDetailsPanel, "pendingDetails");
-        
+
         backToPendingListButton.addActionListener(e -> {
             CardLayout cl = (CardLayout) roomContentPanel.getLayout();
             cl.show(roomContentPanel, "list");
         });
-
 
         // =========================
         // Create BOOKINGS PANEL
@@ -116,17 +111,22 @@ public class ClerkPanel extends javax.swing.JPanel {
         roomContentPanel.add(roomListPanel, "list");
         roomContentPanel.add(roomDetailsPanel, "details");
 
-
         roomList.addListSelectionListener(e -> {
-        if (!e.getValueIsAdjusting()) {
-            showRoomDetails();
-        }});
+            if (!e.getValueIsAdjusting()) {
+                showRoomDetails();
+            }
+        });
+
+        confirmBookingButton.addActionListener(e -> {
+            String roomIdText = roomIdLabel.getText();
+            gui.createBookingForSelectedRoom(roomIdText);
+        });
 
         backToListButton.addActionListener(e -> {
-        CardLayout cl = (CardLayout) roomContentPanel.getLayout();
-        cl.show(roomContentPanel, "list");
+            CardLayout cl = (CardLayout) roomContentPanel.getLayout();
+            cl.show(roomContentPanel, "list");
         });
-        
+
         // =========================
         // CHECKOUT BOOKINGS PANEL
         // =========================
@@ -158,8 +158,6 @@ public class ClerkPanel extends javax.swing.JPanel {
             CardLayout cl = (CardLayout) roomContentPanel.getLayout();
             cl.show(roomContentPanel, "list");
         });
-
-
 
     }
 
@@ -317,19 +315,19 @@ public class ClerkPanel extends javax.swing.JPanel {
     private void createBookingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createBookingButtonActionPerformed
 
         gui.loadAvailableRoomList(this);
-        
+
     }//GEN-LAST:event_createBookingButtonActionPerformed
 
     private void viewPendingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewPendingButtonActionPerformed
 
         gui.loadPendingBookings(this);
-        
+
     }//GEN-LAST:event_viewPendingButtonActionPerformed
 
     private void checkoutRequestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkoutRequestButtonActionPerformed
-        
+
         gui.loadCheckoutRequests(this);
-        
+
     }//GEN-LAST:event_checkoutRequestButtonActionPerformed
 
     private void closeAppButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAppButtonActionPerformed
@@ -338,34 +336,39 @@ public class ClerkPanel extends javax.swing.JPanel {
 
     }//GEN-LAST:event_closeAppButtonActionPerformed
 
-    
     public void showRoomDetails() {
-    String selected = roomList.getSelectedValue();
-    if (selected == null) return;
+        String selected = roomList.getSelectedValue();
+        if (selected == null) {
+            return;
+        }
 
-    // Format: "101 - Deluxe - $120"
-    String[] parts = selected.split(" - ");
-    if (parts.length < 1) return;
+        // Format: "101 - Deluxe - $120"
+        String[] parts = selected.split(" - ");
+        if (parts.length < 1) {
+            return;
+        }
 
-    int roomId = Integer.parseInt(parts[0].trim());
+        int roomId = Integer.parseInt(parts[0].trim());
 
-    Room room = db.findRoomById(roomId);
-    if (room == null) return;
+        Room room = db.findRoomById(roomId);
+        if (room == null) {
+            return;
+        }
 
-    roomIdLabel.setText("Room ID: " + room.getRoomId());
-    roomTypeLabel.setText("Type: " + room.getRoomType());
-    roomPriceLabel.setText("Price: $" + room.getPrice());
+        roomIdLabel.setText("Room ID: " + room.getRoomId());
+        roomTypeLabel.setText("Type: " + room.getRoomType());
+        roomPriceLabel.setText("Price: $" + room.getPrice());
 
-    CardLayout cl = (CardLayout) roomContentPanel.getLayout();
-    cl.show(roomContentPanel, "details");
+        CardLayout cl = (CardLayout) roomContentPanel.getLayout();
+        cl.show(roomContentPanel, "details");
     }
-    
+
     public void setGUI(GUICommands gui) {
         this.gui = gui;
         this.user = gui.getUser();
         this.db = gui.getDb();
     }
-    
+
     public void setCurrentUser(User user) {
         this.user = user;
     }

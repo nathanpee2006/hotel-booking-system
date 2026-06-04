@@ -26,7 +26,7 @@ public class MainWindow extends javax.swing.JFrame {
         db = DBManager.startup();
         IRoomRepository roomRepo = new JdbcRoomRepository(db);
         IUserRepository userRepo = new JdbcUserRepository(db);
-        IBookingRepository bookingRepo = new JdbcBookingRepository(roomRepo, db, userRepo);
+        IBookingRepository bookingRepo = new JdbcBookingRepository(roomRepo, db);
         IPaymentProcessor payment = new PaymentProcessor(db);
         manager = new BookingManager(roomRepo, bookingRepo, payment);
         authService = new AuthService(userRepo, manager);
@@ -37,7 +37,7 @@ public class MainWindow extends javax.swing.JFrame {
         customerPanel = new CustomerPanel();
         clerkPanel = new ClerkPanel();
 
-        gui = new GUICommands(this, authService, db, manager, roomRepo, bookingRepo);
+        gui = new GUICommands(this, authService, manager, roomRepo, bookingRepo, db);
 
         startUpPanel.setGUI(gui);
         logInPanel.setGUI(gui);

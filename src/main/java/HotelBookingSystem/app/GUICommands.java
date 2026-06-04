@@ -307,6 +307,52 @@ public class GUICommands {
         JOptionPane.showMessageDialog(panel, "Failed to load checked-in bookings: " + e.getMessage());
     }
     }
+    
+    public void loadCheckoutRequests(ClerkPanel panel) {
+        try {
+            List<Booking> requests = bookRepo.findByStatus(BookingStatus.CHECKOUT_REQUESTED);
+
+            DefaultListModel<String> model = new DefaultListModel<>();
+
+            if (requests.isEmpty()) {
+                model.addElement("No checkout requests.");
+            } else {
+                for (Booking b : requests) {
+                    model.addElement(
+                            "Booking #" + b.getBookingId()
+                            + " | Room " + b.getRoom().getRoomId()
+                            + " | " + b.getDateRange().getStart()
+                            + " → " + b.getDateRange().getEnd()
+                            + " | " + b.getBookingStatus()
+                    );
+                }
+            }
+
+            panel.roomList.setModel(model);
+
+            // Remove old listeners
+            for (var listener : panel.roomList.getListSelectionListeners())
+                panel.roomList.removeListSelectionListener(listener);
+
+            // Add new listener
+            panel.roomList.addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    String selected = panel.roomList.getSelectedValue();
+                    if (selected != null && selected.startsWith("Booking #")) {
+                        showBookingDetails(selected, panel);
+                    }
+                }
+            });
+
+            CardLayout cl = (CardLayout) panel.roomContentPanel.getLayout();
+            cl.show(panel.roomContentPanel, "list");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(panel, "Failed to load checkout requests: " + e.getMessage());
+        }
+    }
+
 
 
 
@@ -345,11 +391,15 @@ public class GUICommands {
                 return;
             }
 
-            bookingCustomer = new Customer(-1, name, email, null);
+            int newCustomerId = db.insertCustomer(name, email);
+            bookingCustomer = new Customer(newCustomerId, name, email, null);
+            
         } else {
             JOptionPane.showMessageDialog(window, "This user type cannot create bookings.");
             return;
         }
+
+        System.out.println("Walk-in customer ID = " + bookingCustomer.getUserId());
 
         // 3. Ask for dates
         String startInput = JOptionPane.showInputDialog(window, "Enter start date (YYYY-MM-DD):");
@@ -381,6 +431,7 @@ public class GUICommands {
             JOptionPane.showMessageDialog(window, "Booking cancelled: expiry required.");
             return;
         }
+        
         
         CardDetails card = new CardDetails(cardNumber, expiry);
         
@@ -490,6 +541,7 @@ public class GUICommands {
             // Show/hide buttons
             cp.cancelBookingInListButton.setVisible(status == BookingStatus.PENDING);
             cp.checkInButton.setVisible(status == BookingStatus.COMPLETED);
+            cp.requestCheckoutButton.setVisible(status == BookingStatus.CHECKED_IN);
 
             // Remove old listeners
             for (var a : cp.cancelBookingInListButton.getActionListeners())
@@ -497,11 +549,24 @@ public class GUICommands {
 
             for (var a : cp.checkInButton.getActionListeners())
                 cp.checkInButton.removeActionListener(a);
+            
+            for (var a : cp.requestCheckoutButton.getActionListeners())
+                cp.requestCheckoutButton.removeActionListener(a);
 
             // Add new listeners
             cp.cancelBookingInListButton.addActionListener(e -> cancelBooking(booking, cp));
             cp.checkInButton.addActionListener(e -> checkInBooking(booking, cp));
 
+            cp.requestCheckoutButton.addActionListener(e -> {
+                try {
+                    manager.requestCheckout(booking.getBookingId(), currentUser.getUserId());
+                    JOptionPane.showMessageDialog(cp, "Checkout request sent!");
+                    showMyBookings(cp);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(cp, ex.getMessage());
+                }
+            });
+            
             // Show panel
             CardLayout cl = (CardLayout) cp.roomContentPanel.getLayout();
             cl.show(cp.roomContentPanel, "bookingDetails");
@@ -562,6 +627,37 @@ public class GUICommands {
                 cl.show(clp.roomContentPanel, "checkedInDetails");
                 return;
             }
+            
+            // ----- CHECKOUT REQUESTED BOOKINGS -----
+            if (status == BookingStatus.CHECKOUT_REQUESTED) {
+
+                clp.checkoutReqIdLabel.setText("Booking ID: " + booking.getBookingId());
+                clp.checkoutReqRoomLabel.setText("Room: " + booking.getRoom().getRoomId());
+                clp.checkoutReqDatesLabel.setText("Dates: " +
+                        booking.getDateRange().getStart() + " → " +
+                        booking.getDateRange().getEnd());
+                clp.checkoutReqStatusLabel.setText("Status: " + booking.getBookingStatus());
+
+                // Remove old listeners
+                for (var a : clp.confirmCheckoutButton.getActionListeners())
+                    clp.confirmCheckoutButton.removeActionListener(a);
+
+                // Add new listener
+                clp.confirmCheckoutButton.addActionListener(e -> {
+                    try {
+                        manager.confirmCheckout(booking.getBookingId());
+                        JOptionPane.showMessageDialog(clp, "Checkout confirmed!");
+                        loadCheckoutRequests(clp);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(clp, ex.getMessage());
+                    }
+                });
+
+                CardLayout cl = (CardLayout) clp.roomContentPanel.getLayout();
+                cl.show(clp.roomContentPanel, "checkoutRequestDetails");
+                return;
+            }
+
 
             // ----- OTHER STATUSES (OPTIONAL) -----
             JOptionPane.showMessageDialog(panel, "This booking cannot be managed by the clerk.");

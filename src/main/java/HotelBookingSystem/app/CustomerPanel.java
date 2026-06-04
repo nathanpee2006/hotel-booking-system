@@ -29,6 +29,7 @@ public class CustomerPanel extends javax.swing.JPanel {
     public JButton cancelBookingInListButton;
     public JButton checkInButton;
     public JButton backToBookingListButton;
+    public JButton requestCheckoutButton;
     
     public CustomerPanel() {
         
@@ -84,7 +85,9 @@ public class CustomerPanel extends javax.swing.JPanel {
 
         cancelBookingInListButton = new JButton("Cancel Booking");
         checkInButton = new JButton("Check In");
+        requestCheckoutButton = new JButton("Check Out");
         backToBookingListButton = new JButton("Back to List");
+        
 
         bookingDetailsPanel.add(bookingIdLabel);
         bookingDetailsPanel.add(bookingRoomLabel);
@@ -94,6 +97,7 @@ public class CustomerPanel extends javax.swing.JPanel {
         bookingDetailsPanel.add(cancelBookingInListButton);
         bookingDetailsPanel.add(checkInButton);
         bookingDetailsPanel.add(backToBookingListButton);
+        bookingDetailsPanel.add(requestCheckoutButton);
 
 // Add to CardLayout
         roomContentPanel.add(bookingDetailsPanel, "bookingDetails");

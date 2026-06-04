@@ -21,6 +21,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -240,6 +241,20 @@ public final class DBManager {
     public void checkOutBooking(int bookingId) {
         String sql = "UPDATE BOOKINGS SET STATUS = 'CHECKED_OUT' WHERE BOOKING_ID = ?";
         // execute update
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+
+            int rows = stmt.executeUpdate();
+            System.out.println("checkOutBooking(): rows updated = " + rows);
+
+            if (rows == 0) {
+                throw new RuntimeException("No booking found with ID: " + bookingId);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to check out booking: " + e.getMessage());
+        }
     }
     
     public void updateBookingStatus(int bookingId, BookingStatus status) {
@@ -260,7 +275,27 @@ public final class DBManager {
             throw new RuntimeException("Failed to update booking status: " + e.getMessage());
         }
     }
+    
+    public int insertCustomer(String name, String email) {
+        String sql = "INSERT INTO USERS (NAME, EMAIL, ROLE) VALUES (?, ?, 'CUSTOMER')";
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, name);
+            stmt.setString(2, email);
+            stmt.executeUpdate();
 
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+                    System.out.println("insertCustomer(): new customer ID = " + id);
+                    return id;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to insert customer: " + e.getMessage());
+        }
+        return -1;
+    }
 
 
 

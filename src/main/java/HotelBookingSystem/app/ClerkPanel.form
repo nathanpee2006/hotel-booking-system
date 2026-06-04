@@ -45,13 +45,14 @@
                       <Component id="createBookingButton" alignment="0" max="32767" attributes="0"/>
                       <Component id="viewPendingButton" alignment="0" max="32767" attributes="0"/>
                       <Component id="closeAppButton" alignment="0" max="32767" attributes="0"/>
-                      <Component id="viewCheckedInButton" alignment="0" max="32767" attributes="0"/>
+                      <Component id="checkInBookingsButton" alignment="0" max="32767" attributes="0"/>
+                      <Component id="checkoutRequestButton" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="roomContentPanel" min="-2" pref="707" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Component id="headerPanel1" alignment="0" pref="0" max="32767" attributes="0"/>
+              <Component id="headerPanel1" alignment="0" pref="900" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -69,7 +70,9 @@
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="viewPendingButton" min="-2" pref="52" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="viewCheckedInButton" min="-2" pref="52" max="-2" attributes="0"/>
+                          <Component id="checkInBookingsButton" min="-2" pref="52" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="checkoutRequestButton" min="-2" pref="52" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="closeAppButton" min="-2" pref="34" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
@@ -257,12 +260,12 @@
             <Property name="borderPainted" type="boolean" value="false"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="viewCheckedInButton">
+        <Component class="javax.swing.JButton" name="checkInBookingsButton">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Times New Roman" size="18" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value=" Checked In Bookings " noResource="true"/>
+            <Property name="text" type="java.lang.String" value="Check In Requests" noResource="true"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
                 <MatteColorBorder/>
@@ -270,7 +273,23 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="viewCheckedInButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkInBookingsButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="checkoutRequestButton">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Times New Roman" size="18" style="1"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Check Out Requests" noResource="true"/>
+            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+              <Border info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+                <MatteColorBorder/>
+              </Border>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkoutRequestButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

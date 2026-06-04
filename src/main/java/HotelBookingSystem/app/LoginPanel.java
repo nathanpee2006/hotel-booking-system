@@ -31,8 +31,6 @@ public class LoginPanel extends javax.swing.JPanel {
         emailLabel1 = new javax.swing.JLabel();
         showcheck = new javax.swing.JCheckBox();
         closeAppButton = new javax.swing.JButton();
-        nameTextField = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setPreferredSize(new java.awt.Dimension(900, 700));
@@ -103,8 +101,6 @@ public class LoginPanel extends javax.swing.JPanel {
         closeAppButton.setBorderPainted(false);
         closeAppButton.addActionListener(this::closeAppButtonActionPerformed);
 
-        jLabel1.setText("Name");
-
         javax.swing.GroupLayout logInPanelLayout = new javax.swing.GroupLayout(logInPanel);
         logInPanel.setLayout(logInPanelLayout);
         logInPanelLayout.setHorizontalGroup(
@@ -114,7 +110,6 @@ public class LoginPanel extends javax.swing.JPanel {
                 .addGroup(logInPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(logInPanelLayout.createSequentialGroup()
                         .addGroup(logInPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(nameTextField)
                             .addComponent(passwordTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(logInButton, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
                             .addComponent(showcheck, javax.swing.GroupLayout.Alignment.LEADING)
@@ -123,19 +118,13 @@ public class LoginPanel extends javax.swing.JPanel {
                             .addComponent(emailTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE))
                         .addContainerGap(36, Short.MAX_VALUE))
                     .addGroup(logInPanelLayout.createSequentialGroup()
-                        .addGroup(logInPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(emailLabel))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addComponent(emailLabel)
+                        .addGap(0, 208, Short.MAX_VALUE))))
         );
         logInPanelLayout.setVerticalGroup(
             logInPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, logInPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(nameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(emailLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(emailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -166,7 +155,7 @@ public class LoginPanel extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(headerPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(118, 118, 118)
+                .addGap(168, 168, 168)
                 .addComponent(logInPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 165, Short.MAX_VALUE))
         );
@@ -255,12 +244,10 @@ public class LoginPanel extends javax.swing.JPanel {
     private javax.swing.JLabel emailLabel1;
     public javax.swing.JTextField emailTextField;
     private javax.swing.JPanel headerPanel1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton logInButton;
     private javax.swing.JPanel logInPanel;
-    public javax.swing.JTextField nameTextField;
     public javax.swing.JPasswordField passwordTextField;
     private javax.swing.JCheckBox showcheck;
     // End of variables declaration//GEN-END:variables

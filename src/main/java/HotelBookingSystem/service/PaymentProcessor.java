@@ -113,7 +113,7 @@ public class PaymentProcessor implements IPaymentProcessor {
     }
 
     /**
-     * Validates expiry is in MM/YYYY format and not in the past.
+     * Validates expiry is in MM-YYYY format and not in the past.
      */
     private boolean isValidExpiry(String expiry) {
         try {

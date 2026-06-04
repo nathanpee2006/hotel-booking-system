@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class DataBaseStorage {
 
@@ -16,6 +17,7 @@ public class DataBaseStorage {
 
     public void seed() {
         insertRooms();
+        insertDemoUsers(conn);
     }
 
     private boolean isRoomsTableEmpty() throws SQLException {
@@ -93,6 +95,35 @@ public class DataBaseStorage {
         System.out.println("Failed to insert user: " + ex.getMessage());
         return false;
     }
+    }
+    
+    public void insertDemoUsers(Connection conn) {
+    String sql = "INSERT INTO USERS (name, email, password, role) VALUES (?, ?, ?, ?)";
+
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        // Hash passwords
+        String clerkHash = BCrypt.hashpw("hclerkdemo", BCrypt.gensalt());
+        String customerHash = BCrypt.hashpw("customerdemo", BCrypt.gensalt());
+
+        // Clerk demo
+        stmt.setString(1, "HotelClerk Demo");
+        stmt.setString(2, "hclerkdemo@aut.nz");
+        stmt.setString(3, clerkHash);
+        stmt.setString(4, "CLERK");
+        stmt.executeUpdate();
+
+        // Customer demo
+        stmt.setString(1, "Customer Demo");
+        stmt.setString(2, "customerdemo@aut.nz");
+        stmt.setString(3, customerHash);
+        stmt.setString(4, "CUSTOMER");
+        stmt.executeUpdate();
+
+        System.out.println("Demo users inserted with hashed passwords.");
+
+    }   catch (SQLException ex) {
+            System.out.println("Failed to insert demo users: " + ex.getMessage());
+        }
     }
 
     

@@ -19,6 +19,13 @@ public class Room implements IBookable {
         this.price = price;
         this.status = RoomStatus.AVAILABLE;
     }
+    
+    public Room (){
+        this.roomId = 0;
+        this.roomType = null;
+        this.price = 0;
+        this.status = RoomStatus.AVAILABLE;
+    }
 
     public int getRoomId()       { return this.roomId; }
     public RoomType getRoomType(){ return this.roomType; }
@@ -54,6 +61,12 @@ public class Room implements IBookable {
         }
     }
     
+    @Override
+    public String toString() {
+        return "Room " + roomId + " - " + roomType;
+    }
+
+    
     public void occupy() {
         status = RoomStatus.OCCUPIED;
     }
@@ -69,4 +82,6 @@ public class Room implements IBookable {
         }
         return ranges;
     }
+    
+    
 }

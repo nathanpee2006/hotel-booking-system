@@ -14,6 +14,7 @@ public class MainWindow extends javax.swing.JFrame {
     public LoginPanel logInPanel;
     public RegisterPanel registerPanel;
     public CustomerPanel customerPanel;
+    public ClerkPanel clerkPanel;
     public GUICommands gui;
     public AuthService authService;
     public DBManager db;
@@ -24,8 +25,8 @@ public class MainWindow extends javax.swing.JFrame {
         initComponents();
         db = DBManager.startup();
         IRoomRepository roomRepo = new JdbcRoomRepository(db);
-        IBookingRepository bookingRepo = new JdbcBookingRepository(roomRepo, db);
         IUserRepository userRepo = new JdbcUserRepository(db);
+        IBookingRepository bookingRepo = new JdbcBookingRepository(roomRepo, db, userRepo);
         IPaymentProcessor payment = new PaymentProcessor(db);
         manager = new BookingManager(roomRepo, bookingRepo, payment);
         authService = new AuthService(userRepo, manager);
@@ -34,29 +35,34 @@ public class MainWindow extends javax.swing.JFrame {
         logInPanel = new LoginPanel();
         registerPanel = new RegisterPanel();
         customerPanel = new CustomerPanel();
+        clerkPanel = new ClerkPanel();
 
-        gui = new GUICommands(this, authService, db, manager, roomRepo);
+        gui = new GUICommands(this, authService, db, manager, roomRepo, bookingRepo);
 
         startUpPanel.setGUI(gui);
         logInPanel.setGUI(gui);
         registerPanel.setGUI(gui);
         customerPanel.setGUI(gui);
+        clerkPanel.setGUI(gui);
 
         MainPanel.setLayout(new CardLayout());
         MainPanel.add(startUpPanel, "startupPanel");
         MainPanel.add(logInPanel, "loginPanel");
         MainPanel.add(registerPanel, "registerPanel");
         MainPanel.add(customerPanel, "customerPanel");
+        MainPanel.add(clerkPanel, "clerkPanel");
 
         startUpPanel.setBounds(0, 0, 900, 700);
         logInPanel.setBounds(0, 0, 900, 700);
         registerPanel.setBounds(0, 0, 900, 700);
         customerPanel.setBounds(0, 0, 900, 700);
+        clerkPanel.setBounds(0, 0, 900, 700);
 
         startUpPanel.setVisible(true);
         logInPanel.setVisible(false);
         registerPanel.setVisible(false);
         customerPanel.setVisible(false);
+        clerkPanel.setVisible(false);
 
     }
 

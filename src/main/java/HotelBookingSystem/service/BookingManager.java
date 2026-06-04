@@ -39,13 +39,13 @@ public class BookingManager {
         }
 
         Booking booking = new Booking(userId, room, dateRange, BookingStatus.PENDING);
-        int generatedId = bookingRepo.save(booking);
-
-        PaymentResult result = paymentProcessor.process(booking.getAmount(), generatedId, card);
+        
+        PaymentResult result = paymentProcessor.process(booking.getAmount(), -1, card);
         if (!result.isSuccess()) {
-            bookingRepo.delete(generatedId);
             throw new IllegalStateException(result.getErrorMessage());
         }
+        
+        int generatedId = bookingRepo.save(booking);
 
         room.reserve(dateRange.getStart(), dateRange.getEnd());
         roomRepo.updateRoom(room);

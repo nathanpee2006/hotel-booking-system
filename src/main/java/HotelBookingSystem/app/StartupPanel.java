@@ -44,10 +44,9 @@ public class StartupPanel extends javax.swing.JPanel {
         headerPanel1.setLayout(headerPanel1Layout);
         headerPanel1Layout.setHorizontalGroup(
             headerPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerPanel1Layout.createSequentialGroup()
-                .addContainerGap(202, Short.MAX_VALUE)
-                .addComponent(WelcomeLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(176, 176, 176))
+            .addGroup(headerPanel1Layout.createSequentialGroup()
+                .addComponent(WelcomeLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 902, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         headerPanel1Layout.setVerticalGroup(
             headerPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -169,12 +168,15 @@ public class StartupPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_logInButtonActionPerformed
 
     private void closeAppButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeAppButtonActionPerformed
-        System.exit(0);
+        
+        gui.closeProgram();
+        
     }//GEN-LAST:event_closeAppButtonActionPerformed
 
     private void registerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerButtonActionPerformed
 
         gui.goToRegister();
+        
     }//GEN-LAST:event_registerButtonActionPerformed
 
     public void setGUI(GUICommands gui) {

@@ -7,9 +7,14 @@ import HotelBookingSystem.model.RoomType;
 import HotelBookingSystem.db.DataBaseStorage;
 import HotelBookingSystem.db.DatabaseInitializer;
 import HotelBookingSystem.model.Booking;
+import HotelBookingSystem.model.BookingStatus;
+import HotelBookingSystem.model.Customer;
+import HotelBookingSystem.model.DateRange;
 import HotelBookingSystem.model.Room;
 import HotelBookingSystem.model.RoomStatus;
 import HotelBookingSystem.model.RoomType;
+import HotelBookingSystem.model.User;
+import HotelBookingSystem.repository.JdbcUserRepository;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -178,5 +183,85 @@ public final class DBManager {
 
         return rooms;
     }
+    
+    
+    public Booking findBookingById(int id) {
+    String sql = "SELECT * FROM BOOKINGS WHERE booking_id = ?";
+
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            
+            JdbcUserRepository userRepo = new JdbcUserRepository(this);
+            
+            int userId = rs.getInt("user_id");
+
+            User user = userRepo.findById(userId);
+
+            Customer customer = new Customer(
+                user.getUserId(),
+                user.getName(),
+                user.getEmail(),
+                null
+            );
+
+            Room room = findRoomById(rs.getInt("room_id"));
+
+            DateRange range = new DateRange(
+                rs.getDate("start_date").toLocalDate(),
+                rs.getDate("end_date").toLocalDate()
+            );
+
+            BookingStatus status = BookingStatus.valueOf(rs.getString("booking_status"));
+
+            return new Booking(id, room, range, status);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+        return null;
+    }
+    
+    public void checkInBooking(int bookingId) {
+    String sql = "UPDATE BOOKINGS SET booking_status = 'CHECKED_IN' WHERE booking_id = ?";
+
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, bookingId);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        }
+    }
+    
+    public void checkOutBooking(int bookingId) {
+        String sql = "UPDATE BOOKINGS SET STATUS = 'CHECKED_OUT' WHERE BOOKING_ID = ?";
+        // execute update
+    }
+    
+    public void updateBookingStatus(int bookingId, BookingStatus status) {
+        String sql = "UPDATE BOOKINGS SET BOOKING_STATUS = ? WHERE BOOKING_ID = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status.name());
+            stmt.setInt(2, bookingId);
+            //stmt.executeUpdate();
+            
+            int rows = stmt.executeUpdate();
+            System.out.println("Rows updated: " + rows);
+            System.out.println("Updated booking " + bookingId + " to " + status.name());
+
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to update booking status: " + e.getMessage());
+        }
+    }
+
+
+
 
 }

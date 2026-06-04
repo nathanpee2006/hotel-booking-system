@@ -40,12 +40,12 @@ public class BookingManager {
 
         Booking booking = new Booking(userId, room, dateRange, BookingStatus.PENDING);
         int generatedId = bookingRepo.save(booking);
-
+        
         PaymentResult result = paymentProcessor.process(booking.getAmount(), generatedId, card);
         if (!result.isSuccess()) {
-            bookingRepo.delete(generatedId);
             throw new IllegalStateException(result.getErrorMessage());
         }
+        
 
         room.reserve(dateRange.getStart(), dateRange.getEnd());
         roomRepo.updateRoom(room);
@@ -159,8 +159,8 @@ public class BookingManager {
             throw new SecurityException("You can only check out your own booking.");
         }
 
-        if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
-            throw new IllegalStateException("Checkout is only allowed for completed bookings.");
+        if (booking.getBookingStatus() != BookingStatus.CHECKED_IN) {
+            throw new IllegalStateException("Checkout is only allowed for checked in bookings.");
         }
 
         booking.setBookingStatus(BookingStatus.CHECKOUT_REQUESTED);

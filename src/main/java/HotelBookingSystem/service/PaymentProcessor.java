@@ -77,7 +77,7 @@ public class PaymentProcessor implements IPaymentProcessor {
         }
 
         if (!isValidExpiry(expiry)) {
-            return PaymentResult.failure("Card has expired or expiry date is invalid. Use MM/YYYY format.");
+            return PaymentResult.failure("Card has expired or expiry date is invalid. Use MM-YYYY format.");
         }
 
         return PaymentResult.success();
@@ -113,11 +113,11 @@ public class PaymentProcessor implements IPaymentProcessor {
     }
 
     /**
-     * Validates expiry is in MM/YYYY format and not in the past.
+     * Validates expiry is in MM-YYYY format and not in the past.
      */
     private boolean isValidExpiry(String expiry) {
         try {
-            YearMonth expiryMonth = YearMonth.parse(expiry, DateTimeFormatter.ofPattern("MM/yyyy"));
+            YearMonth expiryMonth = YearMonth.parse(expiry, DateTimeFormatter.ofPattern("MM-yyyy"));
             YearMonth now = YearMonth.now();
             return !expiryMonth.isBefore(now);
         } catch (DateTimeParseException ex) {

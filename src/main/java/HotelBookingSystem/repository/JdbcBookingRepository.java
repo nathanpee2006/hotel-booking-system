@@ -16,10 +16,12 @@ import java.util.List;
 public class JdbcBookingRepository implements IBookingRepository {
 
     private final IRoomRepository roomRepo;
+    private final IUserRepository userRepo;
     private final DBManager db;
 
-    public JdbcBookingRepository(IRoomRepository roomRepo, DBManager db) {
+    public JdbcBookingRepository(IRoomRepository roomRepo, DBManager db, IUserRepository UserRepo) {
         this.roomRepo = roomRepo;
+        this.userRepo = UserRepo;
         this.db = db;
     }
 
@@ -76,23 +78,32 @@ public class JdbcBookingRepository implements IBookingRepository {
 
     @Override
     public Booking findById(int id) {
-        String sql = """
-            SELECT booking_id, user_id, room_id, start_date, end_date, booking_status
-            FROM BOOKINGS WHERE booking_id = ?
-            """;
 
-        try (PreparedStatement ps = requireConnection().prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return null;
-                }
-                return mapRow(rs);
+    String sql = """
+        SELECT booking_id, user_id, room_id, start_date, end_date, booking_status
+        FROM BOOKINGS WHERE booking_id = ?
+        """;
+
+    try (PreparedStatement ps = requireConnection().prepareStatement(sql)) {
+        ps.setInt(1, id);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) {
+                System.out.println("findById(" + id + ") returned NULL (no such booking)");
+                return null;
             }
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to find booking " + id, ex);
+
+            Booking booking = mapRow(rs);
+
+            System.out.println("findById(" + id + ") returned booking with ID: " + booking.getBookingId());
+            return booking;
         }
+
+    } catch (SQLException ex) {
+        throw new RuntimeException("Failed to find booking " + id, ex);
     }
+}
+
 
     @Override
     public void update(Booking booking) {
@@ -125,15 +136,35 @@ public class JdbcBookingRepository implements IBookingRepository {
 
     @Override
     public void delete(int bookingId) {
-        String sql = "DELETE FROM BOOKINGS WHERE booking_id = ?";
+        Connection conn = requireConnection();
 
-        try (PreparedStatement ps = requireConnection().prepareStatement(sql)) {
+        try {
+            conn.setAutoCommit(false);
+
+        // 1. Delete reservation first (fixes FK violation)
+            try (PreparedStatement ps = conn.prepareStatement(
+                "DELETE FROM ROOM_RESERVATIONS WHERE booking_id = ?")) {
             ps.setInt(1, bookingId);
             ps.executeUpdate();
-        } catch (SQLException ex) {
+        }
+
+        // 2. Now delete booking
+        try (PreparedStatement ps = conn.prepareStatement(
+                "DELETE FROM BOOKINGS WHERE booking_id = ?")) {
+            ps.setInt(1, bookingId);
+            ps.executeUpdate();
+        }
+
+        conn.commit();
+
+        }   catch (SQLException ex) {
+            rollback(conn);
             throw new RuntimeException("Failed to delete booking " + bookingId, ex);
+        }   finally {
+            restoreAutoCommit(conn);
         }
     }
+
 
     @Override
     public List<Booking> findByStatus(BookingStatus status) {
@@ -156,6 +187,7 @@ public class JdbcBookingRepository implements IBookingRepository {
 
         return queryBookings(sql, ps -> ps.setInt(1, userId));
     }
+    
 
     // -------------------------------------------------------------------------
     // Reservation management (booking-scoped)

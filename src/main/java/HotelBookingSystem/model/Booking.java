@@ -32,6 +32,16 @@ public class Booking {
         this.dateRange = dateRange;
         this.bookingStatus = bookingStatus;
     }
+    
+    @Override
+    public String toString() {
+        return "Booking #" + bookingId +
+               " | Room " + room.getRoomId() +
+               " | " + dateRange.getStart() +
+               " → " + dateRange.getEnd() +
+               " | " + bookingStatus;
+    }
+
 
     public int getBookingId() {
         return bookingId;

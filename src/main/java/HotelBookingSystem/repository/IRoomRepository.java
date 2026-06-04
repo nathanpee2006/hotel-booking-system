@@ -1,5 +1,6 @@
-package HotelBookingSystem;
+package HotelBookingSystem.repository;
 
+import HotelBookingSystem.model.Room;
 import java.util.List;
 
 public interface IRoomRepository {

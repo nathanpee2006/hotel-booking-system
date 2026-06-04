@@ -1,4 +1,4 @@
-package HotelBookingSystem;
+package HotelBookingSystem.model;
 
 public enum RoomType {
 

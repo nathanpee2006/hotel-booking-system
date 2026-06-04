@@ -1,4 +1,4 @@
-package HotelBookingSystem;
+package HotelBookingSystem.model;
 
 public enum BookingStatus {
 
@@ -7,6 +7,7 @@ public enum BookingStatus {
     COMPLETED("Completed"),
     CANCELLATION_REQUESTED("Cancellation Requested"),
     CHECKOUT_REQUESTED("Checkout Requested"),
+    CHECKED_IN("Checked In"),
     CHECKED_OUT("Checked Out");
 
     private String status;

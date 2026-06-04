@@ -1,4 +1,4 @@
-package HotelBookingSystem;
+package HotelBookingSystem.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +17,13 @@ public class Room implements IBookable {
         this.roomId = roomId;
         this.roomType = roomType;
         this.price = price;
+        this.status = RoomStatus.AVAILABLE;
+    }
+    
+    public Room (){
+        this.roomId = 0;
+        this.roomType = null;
+        this.price = 0;
         this.status = RoomStatus.AVAILABLE;
     }
 
@@ -54,6 +61,12 @@ public class Room implements IBookable {
         }
     }
     
+    @Override
+    public String toString() {
+        return "Room " + roomId + " - " + roomType;
+    }
+
+    
     public void occupy() {
         status = RoomStatus.OCCUPIED;
     }
@@ -69,4 +82,6 @@ public class Room implements IBookable {
         }
         return ranges;
     }
+    
+    
 }

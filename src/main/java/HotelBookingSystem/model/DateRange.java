@@ -1,4 +1,4 @@
-package HotelBookingSystem;
+package HotelBookingSystem.model;
 
 import java.time.LocalDate;
 

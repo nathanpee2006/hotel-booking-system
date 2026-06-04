@@ -50,7 +50,7 @@ public class JdbcRoomRepository implements IRoomRepository {
     @Override
     public List<Room> getAllRooms() {
         List<Integer> ids = new ArrayList<>();
-        String sql = "SELECT room_id FROM ROOMS ORDER BY room_id";
+        String sql = "SELECT room_id, room_type, price, room_status FROM ROOMS WHERE room_status = 'AVAILABLE'";
         Connection conn = requireConnection();
 
         try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {

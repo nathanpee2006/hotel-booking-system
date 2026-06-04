@@ -16,12 +16,10 @@ import java.util.List;
 public class JdbcBookingRepository implements IBookingRepository {
 
     private final IRoomRepository roomRepo;
-    private final IUserRepository userRepo;
     private final DBManager db;
 
-    public JdbcBookingRepository(IRoomRepository roomRepo, DBManager db, IUserRepository UserRepo) {
+    public JdbcBookingRepository(IRoomRepository roomRepo, DBManager db) {
         this.roomRepo = roomRepo;
-        this.userRepo = UserRepo;
         this.db = db;
     }
 

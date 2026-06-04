@@ -29,9 +29,9 @@ public class BookingManager {
     }
 
     /**
-     * Creates a booking for an authenticated customer. Payment is
-     * validated and processed before the booking is saved. booking_id is
-     * assigned by the DB and set back on the returned Booking.
+     * Creates a booking for an authenticated customer. Payment is validated and
+     * processed before the booking is saved. booking_id is assigned by the DB
+     * and set back on the returned Booking.
      */
     public Booking createBooking(int userId, Room room, DateRange dateRange, CardDetails card) {
         if (!checkAvailability(room, dateRange)) {
@@ -40,12 +40,12 @@ public class BookingManager {
 
         Booking booking = new Booking(userId, room, dateRange, BookingStatus.PENDING);
         int generatedId = bookingRepo.save(booking);
-        
+
         PaymentResult result = paymentProcessor.process(booking.getAmount(), generatedId, card);
         if (!result.isSuccess()) {
+            bookingRepo.delete(generatedId);
             throw new IllegalStateException(result.getErrorMessage());
         }
-        
 
         room.reserve(dateRange.getStart(), dateRange.getEnd());
         roomRepo.updateRoom(room);
@@ -96,8 +96,8 @@ public class BookingManager {
         booking.setBookingStatus(BookingStatus.COMPLETED);
         bookingRepo.update(booking);
 
-        booking.getRoom().occupy();
-        roomRepo.updateRoom(booking.getRoom());
+//        booking.getRoom().occupy();
+//        roomRepo.updateRoom(booking.getRoom());
     }
 
     /**
@@ -143,6 +143,30 @@ public class BookingManager {
 
         booking.getRoom().release(booking.getDateRange().getStart(), booking.getDateRange().getEnd());
         roomRepo.updateRoom(booking.getRoom());
+    }
+
+    /**
+     * Check-in booking
+     */
+    public void checkInBooking(int bookingId) {
+        Booking booking = bookingRepo.findById(bookingId);
+
+        if (booking == null) {
+            throw new IllegalArgumentException("Booking not found.");
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.COMPLETED) {
+            throw new IllegalStateException(
+                    "Only completed bookings can be checked in."
+            );
+        }
+
+        booking.setBookingStatus(BookingStatus.CHECKED_IN);
+        bookingRepo.update(booking);
+
+        Room room = booking.getRoom();
+        room.occupy();
+        roomRepo.updateRoom(room);
     }
 
     /**

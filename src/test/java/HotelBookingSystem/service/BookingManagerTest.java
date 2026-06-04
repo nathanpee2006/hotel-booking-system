@@ -139,7 +139,7 @@ public class BookingManagerTest {
     // completeBooking
     // -------------------------------------------------------------------------
     @Test
-    public void completeBooking_pendingBooking_statusIsCompletedAndRoomOccupied() {
+    public void completeBooking_pendingBooking_statusIsCompleted() {
         Booking booking = new Booking(1, USER_ID, room, dateRange, BookingStatus.PENDING);
         when(bookingRepo.findById(1)).thenReturn(booking);
         when(paymentProcessor.process(anyDouble(), anyInt(), any()))
@@ -148,9 +148,7 @@ public class BookingManagerTest {
         manager.completeBooking(1);
 
         assertEquals(BookingStatus.COMPLETED, booking.getBookingStatus());
-        assertEquals(RoomStatus.OCCUPIED, room.getStatus());
         verify(bookingRepo).update(booking);
-        verify(roomRepo).updateRoom(room);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -238,11 +236,59 @@ public class BookingManagerTest {
     }
 
     // -------------------------------------------------------------------------
+    // checkInBooking
+    // -------------------------------------------------------------------------
+    @Test
+    public void checkInBooking_validBooking_statusIsCheckedInAndRoomOccupied() {
+        Booking booking = new Booking(
+                1,
+                USER_ID,
+                room,
+                dateRange,
+                BookingStatus.COMPLETED
+        );
+
+        when(bookingRepo.findById(1)).thenReturn(booking);
+
+        manager.checkInBooking(1);
+
+        assertEquals(
+                BookingStatus.CHECKED_IN,
+                booking.getBookingStatus()
+        );
+
+        verify(bookingRepo).update(booking);
+        verify(roomRepo).updateRoom(room);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void checkInBooking_bookingNotFound_throwsIllegalArgumentException() {
+        when(bookingRepo.findById(99)).thenReturn(null);
+
+        manager.checkInBooking(99);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkInBooking_bookingNotCompleted_throwsIllegalStateException() {
+        Booking booking = new Booking(
+                1,
+                USER_ID,
+                room,
+                dateRange,
+                BookingStatus.PENDING
+        );
+
+        when(bookingRepo.findById(1)).thenReturn(booking);
+
+        manager.checkInBooking(1);
+    }
+
+    // -------------------------------------------------------------------------
     // requestCheckout
     // -------------------------------------------------------------------------
     @Test
     public void requestCheckout_validUserAndCompletedStatus_statusIsCheckoutRequested() {
-        Booking booking = new Booking(1, USER_ID, room, dateRange, BookingStatus.COMPLETED);
+        Booking booking = new Booking(1, USER_ID, room, dateRange, BookingStatus.CHECKED_IN);
         when(bookingRepo.findById(1)).thenReturn(booking);
 
         manager.requestCheckout(1, USER_ID);
@@ -260,7 +306,7 @@ public class BookingManagerTest {
 
     @Test(expected = SecurityException.class)
     public void requestCheckout_wrongUserId_throwsSecurityException() {
-        Booking booking = new Booking(1, USER_ID, room, dateRange, BookingStatus.COMPLETED);
+        Booking booking = new Booking(1, USER_ID, room, dateRange, BookingStatus.CHECKED_IN);
         when(bookingRepo.findById(1)).thenReturn(booking);
 
         manager.requestCheckout(1, 99);

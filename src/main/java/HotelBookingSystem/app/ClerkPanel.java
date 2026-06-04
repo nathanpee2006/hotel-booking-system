@@ -58,6 +58,8 @@ public class ClerkPanel extends javax.swing.JPanel {
         
         initComponents();
         
+        
+        
         // =========================
         // PENDING BOOKINGS PANEL
         // =========================
@@ -84,7 +86,7 @@ public class ClerkPanel extends javax.swing.JPanel {
         pendingDetailsPanel.add(backToPendingListButton);
 
         roomContentPanel.add(pendingDetailsPanel, "pendingDetails");
-
+        
         backToPendingListButton.addActionListener(e -> {
             CardLayout cl = (CardLayout) roomContentPanel.getLayout();
             cl.show(roomContentPanel, "list");
@@ -92,33 +94,37 @@ public class ClerkPanel extends javax.swing.JPanel {
 
 
         // =========================
-        // CHECKED-IN BOOKINGS PANEL
+        // Create BOOKINGS PANEL
         // =========================
-        checkedInDetailsPanel = new JPanel();
-        checkedInDetailsPanel.setLayout(new BoxLayout(checkedInDetailsPanel, BoxLayout.Y_AXIS));
-        checkedInDetailsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        roomDetailsPanel.setLayout(new BoxLayout(roomDetailsPanel, BoxLayout.Y_AXIS));
+        roomDetailsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        checkedInIdLabel = new JLabel();
-        checkedInRoomLabel = new JLabel();
-        checkedInDatesLabel = new JLabel();
-        checkedInStatusLabel = new JLabel();
+        roomIdLabel = new JLabel();
+        roomTypeLabel = new JLabel();
+        roomPriceLabel = new JLabel();
 
-        checkOutButton = new JButton("Check Out");
-        backToCheckedInListButton = new JButton("Back to List");
+        confirmBookingButton = new JButton("Confirm Booking");
+        backToListButton = new JButton("Back to List");
 
-        checkedInDetailsPanel.add(checkedInIdLabel);
-        checkedInDetailsPanel.add(checkedInRoomLabel);
-        checkedInDetailsPanel.add(checkedInDatesLabel);
-        checkedInDetailsPanel.add(checkedInStatusLabel);
-        checkedInDetailsPanel.add(Box.createVerticalStrut(20));
-        checkedInDetailsPanel.add(checkOutButton);
-        checkedInDetailsPanel.add(backToCheckedInListButton);
+        roomDetailsPanel.add(roomIdLabel);
+        roomDetailsPanel.add(roomTypeLabel);
+        roomDetailsPanel.add(roomPriceLabel);
+        roomDetailsPanel.add(Box.createVerticalStrut(20));
+        roomDetailsPanel.add(confirmBookingButton);
+        roomDetailsPanel.add(backToListButton);
 
-        roomContentPanel.add(checkedInDetailsPanel, "checkedInDetails");
+        roomContentPanel.add(roomListPanel, "list");
+        roomContentPanel.add(roomDetailsPanel, "details");
 
-        backToCheckedInListButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) roomContentPanel.getLayout();
-            cl.show(roomContentPanel, "list");
+
+        roomList.addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            showRoomDetails();
+        }});
+
+        backToListButton.addActionListener(e -> {
+        CardLayout cl = (CardLayout) roomContentPanel.getLayout();
+        cl.show(roomContentPanel, "list");
         });
         
         // =========================
@@ -173,11 +179,10 @@ public class ClerkPanel extends javax.swing.JPanel {
         createBookingButton = new javax.swing.JButton();
         viewPendingButton = new javax.swing.JButton();
         roomContentPanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        roomListPanel = new javax.swing.JScrollPane();
         roomList = new javax.swing.JList<>();
         roomDetailsPanel = new javax.swing.JPanel();
         closeAppButton = new javax.swing.JButton();
-        checkInBookingsButton = new javax.swing.JButton();
         checkoutRequestButton = new javax.swing.JButton();
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -234,9 +239,9 @@ public class ClerkPanel extends javax.swing.JPanel {
         roomList.setBorder(new javax.swing.border.MatteBorder(null));
         roomList.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
         roomList.setFixedCellHeight(30);
-        jScrollPane1.setViewportView(roomList);
+        roomListPanel.setViewportView(roomList);
 
-        roomContentPanel.add(jScrollPane1, "card2");
+        roomContentPanel.add(roomListPanel, "card2");
 
         roomDetailsPanel.setBackground(new java.awt.Color(255, 255, 255));
         roomDetailsPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -249,11 +254,6 @@ public class ClerkPanel extends javax.swing.JPanel {
         closeAppButton.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         closeAppButton.setBorderPainted(false);
         closeAppButton.addActionListener(this::closeAppButtonActionPerformed);
-
-        checkInBookingsButton.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        checkInBookingsButton.setText("Check In Requests"); // NOI18N
-        checkInBookingsButton.setBorder(new javax.swing.border.MatteBorder(null));
-        checkInBookingsButton.addActionListener(this::checkInBookingsButtonActionPerformed);
 
         checkoutRequestButton.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         checkoutRequestButton.setText("Check Out Requests"); // NOI18N
@@ -270,12 +270,11 @@ public class ClerkPanel extends javax.swing.JPanel {
                     .addComponent(createBookingButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(viewPendingButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(closeAppButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(checkInBookingsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(checkoutRequestButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(roomContentPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 707, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
-            .addComponent(headerPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 900, Short.MAX_VALUE)
+            .addComponent(headerPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -290,8 +289,6 @@ public class ClerkPanel extends javax.swing.JPanel {
                         .addComponent(createBookingButton, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(viewPendingButton, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(checkInBookingsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(checkoutRequestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -328,12 +325,6 @@ public class ClerkPanel extends javax.swing.JPanel {
         gui.loadPendingBookings(this);
         
     }//GEN-LAST:event_viewPendingButtonActionPerformed
-
-    private void checkInBookingsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkInBookingsButtonActionPerformed
-        
-        gui.loadCheckedInBookings(this);
-        
-    }//GEN-LAST:event_checkInBookingsButtonActionPerformed
 
     private void checkoutRequestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkoutRequestButtonActionPerformed
         
@@ -382,16 +373,15 @@ public class ClerkPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Label WelcomeLabel1;
     private javax.swing.JButton backButton;
-    private javax.swing.JButton checkInBookingsButton;
     private javax.swing.JButton checkoutRequestButton;
     private javax.swing.JButton closeAppButton;
     private javax.swing.JButton createBookingButton;
     private javax.swing.JPanel headerPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JPanel roomContentPanel;
     private javax.swing.JPanel roomDetailsPanel;
     public javax.swing.JList<String> roomList;
+    private javax.swing.JScrollPane roomListPanel;
     private javax.swing.JButton viewPendingButton;
     // End of variables declaration//GEN-END:variables
 }
